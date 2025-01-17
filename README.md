@@ -1,2 +1,1 @@
-# CSCI2040U
-Project for CSCI 20440
+# Team Contract
