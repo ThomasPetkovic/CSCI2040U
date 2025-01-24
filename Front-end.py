@@ -63,5 +63,8 @@ Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10
 # Button to edit an existing item (placeholder)
 Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
 
+#Button to refresh changes to database
+Button(root, text="Refresh",)
+
 # Run the application
 root.mainloop()

@@ -1,11 +1,11 @@
 from tkinter import *
 from tkinter import messagebox
-from back import *
+import back
 import csv
 
 # Function to load data from CSV file
 def load_data_from_csv():
-    return []
+    return back.initial_read()
 
 # Load initial data from CSV
 sample_data = load_data_from_csv()
@@ -16,9 +16,9 @@ def show_item_details(item):
     details_window.title("Item Details")
     details_window.geometry("300x200")
 
-    Label(details_window, text=f"ID: {item['ID']}").pack(pady=5)
-    Label(details_window, text=f"Name: {item['Name']}").pack(pady=5)
-    Label(details_window, text=f"Description: {item['Description']}").pack(pady=5)
+    Label(details_window, text=f"ID: {item['id']}").pack(pady=5)
+    Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
+    Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
 # Functionality of adding items
 def add_item():
@@ -26,23 +26,23 @@ def add_item():
     add_window.title("Add Item")
     add_window.geometry("300x200")
 
-    Label(add_window, text="ID:").pack(pady=5)
+    Label(add_window, text="id:").pack(pady=5)
     id_entry = Entry(add_window)
     id_entry.pack(pady=5)
     
-    Label(add_window, text="Name:").pack(pady=5)
+    Label(add_window, text="name:").pack(pady=5)
     name_entry = Entry(add_window)
     name_entry.pack(pady=5)
 
-    Label(add_window, text="Description:").pack(pady=5)
+    Label(add_window, text="description:").pack(pady=5)
     description_entry = Entry(add_window)
     description_entry.pack(pady=5)
 
     def save_item():
         new_item = {
-            "ID": id_entry.get(),
-            "Name": name_entry.get(),
-            "Description": description_entry.get()
+            "id": id_entry.get(),
+            "name": name_entry.get(),
+            "description": description_entry.get()
         }
         sample_data.append(new_item)
         refresh_listbox()
@@ -109,7 +109,7 @@ def edit_item():
 def refresh_listbox():
     listbox.delete(0, END)
     for item in sample_data:
-        listbox.insert(END, item["Name"])
+        listbox.insert(END, item["name"])
 
 # Main application window
 root = Tk()
