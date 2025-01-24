@@ -16,9 +16,9 @@ def show_item_details(item):
     details_window.title("Item Details")
     details_window.geometry("300x200")
 
-    Label(details_window, text=f"ID: {item['ID']}").pack(pady=5)
-    Label(details_window, text=f"Name: {item['Name']}").pack(pady=5)
-    Label(details_window, text=f"Description: {item['Description']}").pack(pady=5)
+    Label(details_window, text=f"ID: {item['id']}").pack(pady=5)
+    Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
+    Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
 # Function to add a new item (placeholder, does nothing)
 def add_item():
