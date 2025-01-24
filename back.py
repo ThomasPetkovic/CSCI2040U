@@ -7,9 +7,9 @@ def initial_read():
 
     with open("test.csv", mode="r") as database:
 
-        catalog = csv.reader(database)
+        catalog=csv.DictReader(database)
 
-    return catalog
+        for item in catalog:
+            print(item)
 
 catalog = initial_read()
-
