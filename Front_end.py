@@ -78,7 +78,7 @@ def edit_item(item):
         refresh_listbox()
         edit_window.destroy()
 
-    Button(edit_window, text="Add Item", command=save_item).pack(pady=5)
+    Button(edit_window, text="Edit Item", command=save_item).pack(pady=5)
 
 # Function to edit an existing item (placeholder, does nothing
 
