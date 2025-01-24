@@ -5,7 +5,7 @@ import csv
 
 # Function to load data from CSV file
 def load_data_from_csv():
-    return []
+    return back.initial_read()
 
 # Load initial data from CSV
 sample_data = load_data_from_csv()
