@@ -5,11 +5,16 @@ import csv
 #read from initial database
 def initial_read():
 
+    list = []
+
     with open("test.csv", mode="r") as database:
 
         catalog=csv.DictReader(database)
 
         for item in catalog:
             print(item)
+            list.append(item)
 
-catalog = initial_read()
+    return list
+
+list = initial_read()

@@ -1,10 +1,11 @@
 from tkinter import *
 from tkinter import messagebox
 import csv
+import back
 
 # Function to load data from CSV file
 def load_data_from_csv():
-    return []
+    return back.initial_read()
 
 # Load initial data from CSV
 sample_data = load_data_from_csv()
@@ -31,7 +32,7 @@ def edit_item():
 def refresh_listbox():
     listbox.delete(0, END)
     for item in sample_data:
-        listbox.insert(END, item["Name"])
+        listbox.insert(END, item["name"])
 
 # Main application window
 root = Tk()
