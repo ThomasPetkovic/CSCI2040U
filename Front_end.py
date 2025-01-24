@@ -23,7 +23,7 @@ def show_item_details(item):
 def add_item():
     add_window = Toplevel(root)
     add_window.title("Add Item")
-    add_window.geometry("300x200")
+    add_window.geometry("300x300")
 
     Label(add_window, text="id:").pack(pady=5)
     id_entry = Entry(add_window)
@@ -52,6 +52,7 @@ def add_item():
             refresh_listbox()
             add_window.destroy()
         else:
+
             messagebox.showwarning("Input Error", "All fields must be filled out.")
 
     Button(add_window, text="Add Item", command=save_item).pack(pady=5)
@@ -63,9 +64,37 @@ def validate_inputs(id, name, description):
     else:
         return False
     
+
+def edit_item(item):
+    edit_window = Toplevel(root)
+    edit_window.title("Edit Item")
+    edit_window.geometry("300x300")
+
+    Label(edit_window, text="id:").pack(pady=5)
+    id_entry = Entry(edit_window)
+    id_entry.pack(pady=5)
     
-def edit_item():
-    messagebox.showinfo("Info", "Edit Item functionality will be implemented later.")
+    Label(edit_window, text="name:").pack(pady=5)
+    name_entry = Entry(edit_window)
+    name_entry.pack(pady=5)
+
+    Label(edit_window, text="description:").pack(pady=5)
+    description_entry = Entry(edit_window)
+    description_entry.pack(pady=5)
+
+    def save_item():
+        new = {
+            "id": id_entry.get(),
+            "name": name_entry.get(),
+            "description": description_entry.get()
+        }
+        sample_data.remove(item)
+        sample_data.append(new)
+        refresh_listbox()
+        edit_window.destroy()
+
+    Button(edit_window, text="Edit Item", command=save_item).pack(pady=5)
+
 # Function to edit an existing item (placeholder, does nothing
 
 # Function to refresh the listbox
@@ -101,7 +130,15 @@ Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10,
 Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10)
 
 # Button to edit an existing item (placeholder)
-Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
+def edit_selected_item():
+    selected_index = listbox.curselection()
+    if selected_index:
+        selected_item = sample_data[selected_index[0]]
+        edit_item(selected_item)
+    else:
+        messagebox.showwarning("Error", "Please select an item to edit.")
+
+Button(root, text="Edit Item", command=edit_selected_item).pack(side=LEFT, padx=10, pady=10)
 
 
 # Run the application
