@@ -63,84 +63,9 @@ def validate_inputs(id, name, description):
     else:
         return False
     
-
-  
-  
-    
-
-    
-    
-
-   
-<<<<<<< HEAD
-
-
-
-
-
-
-
-
-
-
-
-    
-
-   
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-
-
-
-
-   
-
     
 def edit_item():
     messagebox.showinfo("Info", "Edit Item functionality will be implemented later.")
-=======
-def edit_item(item):
-    edit_window = Toplevel(root)
-    edit_window.title("Add Item")
-    edit_window.geometry("300x200")
-
-    Label(edit_window, text="id:").pack(pady=5)
-    id_entry = Entry(edit_window)
-    id_entry.pack(pady=5)
-    
-    Label(edit_window, text="name:").pack(pady=5)
-    name_entry = Entry(edit_window)
-    name_entry.pack(pady=5)
-
-    Label(edit_window, text="description:").pack(pady=5)
-    description_entry = Entry(edit_window)
-    description_entry.pack(pady=5)
-
-    def save_item():
-        new = {
-            "id": id_entry.get(),
-            "name": name_entry.get(),
-            "description": description_entry.get()
-        }
-        sample_data.remove(item)
-        sample_data.append(new)
-        refresh_listbox()
-        edit_window.destroy()
-
-    Button(edit_window, text="Add Item", command=save_item).pack(pady=5)
-
->>>>>>> b29b58c29b69574e67434501bccad9695034bce1
 # Function to edit an existing item (placeholder, does nothing
 
 # Function to refresh the listbox
@@ -176,14 +101,7 @@ Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10,
 Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10)
 
 # Button to edit an existing item (placeholder)
-def edit_details():
-    selected_index = listbox.curselection()
-    if selected_index:
-        selected_item = sample_data[selected_index[0]]
-        edit_item(selected_item)
-    else:
-        messagebox.showwarning("Error", "Please select an item to view details.")
-Button(root, text="Edit Item", command=edit_details).pack(side=LEFT, padx=10, pady=10)
+Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
 
 
 # Run the application
