@@ -49,61 +49,10 @@ def add_item():
         add_window.destroy()
 
     Button(add_window, text="Add Item", command=save_item).pack(pady=5)
-
-
-
-  
-  
-    
-
-    
-    
-
    
-
-
-
-
-
-
-
-
-
-
-
-    
-
-   
-
-
-
-
-
-
-
-    
-
-    
-
-    
-
-
-
-
-
-   
-
-    
 def edit_item():
     messagebox.showinfo("Info", "Edit Item functionality will be implemented later.")
-
-    
-
-    
-
-# Function to edit an existing item (placeholder, does nothing)
-
-
+# Function to edit an existing item (placeholder, does nothing
 
 # Function to refresh the listbox
 def refresh_listbox():
@@ -139,6 +88,12 @@ Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10
 
 # Button to edit an existing item (placeholder)
 Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
+
+def refresh():
+
+    back.rewrite_csv(sample_data)
+
+Button(root, text="Refresh", command=refresh).pack(side=LEFT, padx=10, pady=10)
 
 # Run the application
 root.mainloop()
