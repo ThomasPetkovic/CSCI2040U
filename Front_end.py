@@ -39,18 +39,31 @@ def add_item():
     description_entry.pack(pady=5)
 
     def save_item():
-        new_item = {
-            "ID": id_entry.get(),
-            "Name": name_entry.get(),
-            "Description": description_entry.get()
-        }
-        sample_data.append(new_item)
-        refresh_listbox()
-        add_window.destroy()
+        id = id_entry.get()
+        name = name_entry.get()
+        description = description_entry.get()
+        
+        if validate_inputs(id, name, description):
+            new_item = {
+                "ID": id,
+                "Name": name,
+                "Description": description
+            }
+            sample_data.append(new_item)
+            refresh_listbox()
+            add_window.destroy()
+        else:
+            messagebox.showwarning("Input Error", "All fields must be filled out.")
 
     Button(add_window, text="Add Item", command=save_item).pack(pady=5)
 
-
+#Validate inputs (e.g., check for non-empty fields)
+def validate_inputs(id, name, description):
+    if id and name and description:
+         return True
+    else:
+        return False
+    
 
   
   
@@ -139,6 +152,7 @@ Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10
 
 # Button to edit an existing item (placeholder)
 Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
+
 
 # Run the application
 root.mainloop()
