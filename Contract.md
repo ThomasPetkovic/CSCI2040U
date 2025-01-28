@@ -20,7 +20,7 @@
 - **Developers**: All  
 
 ## Pipeline:  
-- **Primary Language**: Java, Python  
+- **Primary Language**: Python  
 - **Repository**: GitHub  
 - **Version Control**: GitHub  
 - **Project Planning Board**: Trello  

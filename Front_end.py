@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import messagebox
 import back
 
+
 # Function to load data from CSV file
 def load_data_from_csv():
     return back.initial_read()
@@ -15,7 +16,7 @@ def show_item_details(item):
     details_window.title("Item Details")
     details_window.geometry("300x200")
 
-    Label(details_window, text=f"ID: {item['id']}").pack(pady=5)
+    Label(details_window, text=f"ID: id{item['id']}").pack(pady=5)
     Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
     Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
@@ -51,49 +52,101 @@ def add_item():
             sample_data.append(new_item)
             refresh_listbox()
             add_window.destroy()
-        else:
-
-            messagebox.showwarning("Input Error", "All fields must be filled out.")
+           
+         
 
     Button(add_window, text="Add Item", command=save_item).pack(pady=5)
 
-#Validate inputs (e.g., check for non-empty fields)
+   
 def validate_inputs(id, name, description):
-    if id and name and description:
-         return True
-    else:
+
+    #remove whitespace
+
+    id = id.strip()
+    name = name.strip()
+    description = description.strip()
+    
+    #ID Cannot have Spaces
+    for spaces in range(len(id)):
+        if id[spaces] == " ":
+            messagebox.showwarning("Input Error", "ID cannot contain spaces.")  
+            return False
+    # All Fields have to be filled out
+    if id == "" and name == "" and description == "":
+        messagebox.showwarning("Input Error", "Please enter all fields.")
+        return False
+    if id == "" and  name == "":
+        messagebox.showwarning("Input Error", "Please enter ID and Name.")
+        return False
+    if id == "" and description == "":
+        messagebox.showwarning("Input Error", "Please enter ID and Description.")
+        return False
+    if name == "" and description == "":
+        messagebox.showwarning("Input Error", "Please enter Name and Description.")
+        return False
+    if id == "":
+        messagebox.showwarning("Input Error", "Please enter ID.")
+        return False
+    if name == "":
+        messagebox.showwarning("Input Error", "Please enter Name.")
+        return False
+    if description == "":
+        messagebox.showwarning("Input Error", "Please enter Description.")
         return False
     
+    # Id must be an integer
+    if not id.isdigit():
+        messagebox.showwarning("Input Error", "ID must be an integer.")
+        return False
+    
+    # ID must be unique
+    for item in sample_data:
+        if item["id"] == id:
+            messagebox.showwarning("Input Error", "ID must be unique.")
+            return False
+    return True
+ 
 
-def edit_item(item):
+def edit_item():
+    selected_index = listbox.curselection()
+    if not selected_index:
+        messagebox.showwarning("Error", "Please select an item to edit.")
+        return
+
+    item = sample_data[selected_index[0]]
+
     edit_window = Toplevel(root)
     edit_window.title("Edit Item")
     edit_window.geometry("300x300")
 
     Label(edit_window, text="id:").pack(pady=5)
     id_entry = Entry(edit_window)
+    id_entry.insert(0, item["id"])
     id_entry.pack(pady=5)
     
     Label(edit_window, text="name:").pack(pady=5)
     name_entry = Entry(edit_window)
+    name_entry.insert(0, item["name"])
     name_entry.pack(pady=5)
 
     Label(edit_window, text="description:").pack(pady=5)
     description_entry = Entry(edit_window)
+    description_entry.insert(0, item["description"])
     description_entry.pack(pady=5)
 
     def save_item():
-        new = {
-            "id": id_entry.get(),
-            "name": name_entry.get(),
-            "description": description_entry.get()
-        }
-        sample_data.remove(item)
-        sample_data.append(new)
-        refresh_listbox()
-        edit_window.destroy()
+        new_id = id_entry.get()
+        new_name = name_entry.get()
+        new_description = description_entry.get()
 
-    Button(edit_window, text="Edit Item", command=save_item).pack(pady=5)
+        if validate_inputs(new_id, new_name, new_description):
+            item["id"] = new_id
+            item["name"] = new_name
+            item["description"] = new_description
+            refresh_listbox()
+            edit_window.destroy()
+
+    Button(edit_window, text="Save Changes", command=save_item).pack(pady=5)
 
 # Function to edit an existing item (placeholder, does nothing
 
@@ -130,15 +183,7 @@ Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10,
 Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10)
 
 # Button to edit an existing item (placeholder)
-def edit_selected_item():
-    selected_index = listbox.curselection()
-    if selected_index:
-        selected_item = sample_data[selected_index[0]]
-        edit_item(selected_item)
-    else:
-        messagebox.showwarning("Error", "Please select an item to edit.")
-
-Button(root, text="Edit Item", command=edit_selected_item).pack(side=LEFT, padx=10, pady=10)
+Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
 
 
 # Run the application

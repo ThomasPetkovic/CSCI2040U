@@ -5,7 +5,7 @@ import csv
 #read from initial database
 def initial_read():
 
-    data_list = []
+    list = []
 
     with open("test.csv", mode="r") as database:
 
@@ -13,19 +13,19 @@ def initial_read():
 
         for item in catalog:
             print(item)
-            data_list.append(item)
+            list.append(item)
 
-    return data_list
+    return list
 
-data_list = initial_read()
+list = initial_read()
 
 #function to save modified list variable to new csv file. can be replaced with append functionality later on if optimization required.
-def rewrite_csv(data_list):
+def rewrite_csv(list):
     with open("test.csv", mode="w", newline="") as database:
         fieldnames = ["name", "description", "id"]
         writer = csv.DictWriter(database, fieldnames=fieldnames)
         writer.writeheader()
-        for item in data_list:
+        for item in list:
             writer.writerow(item)
 
-rewrite_csv(data_list)
+rewrite_csv(list)
