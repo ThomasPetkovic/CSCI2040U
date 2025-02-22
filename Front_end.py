@@ -148,6 +148,22 @@ def edit_item():
 
     Button(edit_window, text="Save Changes", command=save_item).pack(pady=5)
 
+#Function to delete an existing item
+
+def delete_item():
+
+    selected_index = listbox.curselection()
+    
+    if not selected_index:
+     
+        messagebox.showwarning("Error", "Please select an item to delete.") #If an item is not highlighted, show an error box
+        return
+
+    sample_data.remove(sample_data[selected_index[0]]) #Delete selected item
+    refresh_listbox() #Refresh the display
+
+    return
+
 # Function to edit an existing item (placeholder, does nothing
 
 # Function to refresh the listbox
@@ -155,6 +171,8 @@ def refresh_listbox():
     listbox.delete(0, END)
     for item in sample_data:
         listbox.insert(END, item["name"])
+
+    back.rewrite_csv(sample_data)
 
 # Main application window
 root = Tk()
@@ -184,6 +202,9 @@ Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10
 
 # Button to edit an existing item (placeholder)
 Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
+
+#Button to delete an existing item
+Button(root, text="Delete Item", command=delete_item).pack(side=LEFT, padx=10, pady=10)
 
 
 # Run the application
