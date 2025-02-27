@@ -20,6 +20,21 @@ def show_item_details(item):
     Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
     Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
+def search_item():
+    searched = []
+    entry = search_entry.get()
+    for item in sample_data:
+        if item['name'].lower().startswith(entry.lower()):
+            searched.append(item)
+    listbox.delete(0, END)
+    if len(searched) != 0:
+        for item in searched:
+            listbox.insert(END, item["name"])
+    else:
+        messagebox.showerror('ERROR', "No matching search results.")
+        refresh_listbox()
+
+        
 # Functionality of adding items
 def add_item():
     add_window = Toplevel(root)
@@ -179,6 +194,11 @@ root = Tk()
 root.title("Catalog Management System")
 root.geometry("400x300")
 
+#Search Entry box
+search_entry = Entry(root, width = 100)
+search_entry.insert(0, "Search for an item...")
+search_entry.pack(side = TOP, padx=10, pady=5,)
+
 # Listbox to display catalog items
 listbox = Listbox(root)
 listbox.pack(fill=BOTH, expand=True, padx=10, pady=10)
@@ -205,6 +225,14 @@ Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=
 
 #Button to delete an existing item
 Button(root, text="Delete Item", command=delete_item).pack(side=LEFT, padx=10, pady=10)
+
+#Button to confirm search 
+search_button = Button(root,text = "Search", command = search_item)
+search_button.pack(padx = 10, pady = 5)
+search_button.place(x = 345,y = 4)
+
+
+
 
 
 # Run the application
