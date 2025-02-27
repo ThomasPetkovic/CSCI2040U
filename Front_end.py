@@ -20,6 +20,7 @@ def show_item_details(item):
     Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
     Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
+#Functionality of searching items
 def search_item():
     searched = []
     entry = search_entry.get()
