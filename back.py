@@ -22,7 +22,7 @@ list = initial_read()
 #function to save modified list variable to new csv file. can be replaced with append functionality later on if optimization required.
 def rewrite_csv(list):
     with open("test.csv", mode="w", newline="") as database:
-        fieldnames = ["name", "description", "id"]
+        fieldnames = ["name", "description", "id", "albumtitle", "genre", "releasedate"]  # Added new fields
         writer = csv.DictWriter(database, fieldnames=fieldnames)
         writer.writeheader()
         for item in list:

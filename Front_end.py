@@ -16,9 +16,9 @@ def show_item_details(item):
     details_window.title("Item Details")
     details_window.geometry("300x200")
 
-    Label(details_window, text=f"ID: id{item['id']}").pack(pady=5)
-    Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
-    Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
+    Label(details_window, text=f"Album Title: {item['albumtitle']}").pack(pady=5)
+    Label(details_window, text=f"Genre: {item['genre']}").pack(pady=5)
+    Label(details_window, text=f"Release Date: {item['releasedate']}").pack(pady=5)
 
 
 #Functionality of searching items
@@ -42,30 +42,48 @@ def search_item():
 def add_item():
     add_window = Toplevel(root)
     add_window.title("Add Item")
-    add_window.geometry("300x300")
+    add_window.geometry("400x500")
 
-    Label(add_window, text="id:").pack(pady=5)
+    Label(add_window, text="ID:").pack(pady=5)
     id_entry = Entry(add_window)
     id_entry.pack(pady=5)
     
-    Label(add_window, text="name:").pack(pady=5)
+    Label(add_window, text="Name:").pack(pady=5)
     name_entry = Entry(add_window)
     name_entry.pack(pady=5)
 
-    Label(add_window, text="description:").pack(pady=5)
+    Label(add_window, text="Description:").pack(pady=5)
     description_entry = Entry(add_window)
     description_entry.pack(pady=5)
+
+    Label(add_window, text="Album Title:").pack(pady=5)
+    album_title_entry = Entry(add_window)
+    album_title_entry.pack(pady=5)
+
+    Label(add_window, text="Genre:").pack(pady=5)
+    genre_entry = Entry(add_window)
+    genre_entry.pack(pady=5)
+
+    Label(add_window, text="Release Date:").pack(pady=5)
+    release_date_entry = Entry(add_window)
+    release_date_entry.pack(pady=5)
 
     def save_item():
         id = id_entry.get()
         name = name_entry.get()
         description = description_entry.get()
-        
+        albumtitle = album_title_entry.get()
+        genre = genre_entry.get()
+        releasedate = release_date_entry.get()
+
         if validate_inputs(id, name, description):
             new_item = {
                 "id": id,
                 "name": name,
-                "description": description
+                "description": description,
+                "albumtitle": albumtitle,
+                "genre": genre,
+                "releasedate": releasedate
             }
             sample_data.append(new_item)
             refresh_listbox()
@@ -135,7 +153,7 @@ def edit_item():
 
     edit_window = Toplevel(root)
     edit_window.title("Edit Item")
-    edit_window.geometry("300x300")
+    edit_window.geometry("400x500")
 
     Label(edit_window, text="id:").pack(pady=5)
     id_entry = Entry(edit_window)
@@ -152,15 +170,38 @@ def edit_item():
     description_entry.insert(0, item["description"])
     description_entry.pack(pady=5)
 
+    Label(edit_window, text="Album Title:").pack(pady=5)
+    album_title_entry = Entry(edit_window)
+    album_title_entry.insert(0, item["albumtitle"])
+    album_title_entry.pack(pady=5)
+
+    Label(edit_window, text="Genre:").pack(pady=5)
+    genre_entry = Entry(edit_window)
+    genre_entry.insert(0, item["genre"])
+    genre_entry.pack(pady=5)
+
+    Label(edit_window, text="Release Date:").pack(pady=5)
+    release_date_entry = Entry(edit_window)
+    release_date_entry.insert(0, item["releasedate"])
+    release_date_entry.pack(pady=5)
+
     def save_item():
         new_id = id_entry.get()
         new_name = name_entry.get()
         new_description = description_entry.get()
+        new_albumtitle = album_title_entry.get()
+        new_genre = genre_entry.get()
+        new_releasedate = release_date_entry.get()
+
 
         if validate_inputs(new_id, new_name, new_description):
             item["id"] = new_id
             item["name"] = new_name
             item["description"] = new_description
+            item["albumtitle"] = new_albumtitle
+            item["genre"] = new_genre
+            item["releasedate"] = new_releasedate
+            
             refresh_listbox()
             edit_window.destroy()
 

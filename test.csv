@@ -1,4 +1,5 @@
-name,description,id
-name1,first item,1
-name3,third item,3
-name2,second item,22
+name,description,id,albumtitle,genre,releasedate
+name1,first item,1,The Moon,Rock,2025-02-27
+name3,third item,3,The Sun,Jazz,2025-02-17
+name2,second item,22,The Earth,Pop,2025-01-07
+hello,a song i lik,2113,thrrq,Rap,2025-02-19
