@@ -20,8 +20,10 @@ def show_item_details(item):
     Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
     Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
+
 #Functionality of searching items
 def search_item():
+    global searched
     searched = []
     entry = search_entry.get()
     for item in sample_data:
@@ -184,9 +186,11 @@ def delete_item():
 
 # Function to refresh the listbox
 def refresh_listbox():
-    listbox.delete(0, END)
-    for item in sample_data:
-        listbox.insert(END, item["name"])
+    global searched
+    searched = [] #refreshes any searches
+    listbox.delete(0, END) 
+    for item in sample_data: 
+        listbox.insert(END, item["name"]) #adds all data back into the listbox
 
     back.rewrite_csv(sample_data)
 
@@ -228,7 +232,10 @@ def on_hover(event):
 
     selected_index = listbox.nearest(event.y)
     if selected_index >= 0:
-        item = sample_data[selected_index]
+        if len(searched) != 0:
+            item = searched[selected_index]
+        else:
+            item = sample_data[selected_index]
         tipbox = Toplevel(root)
         tipbox.wm_overrideredirect(True)
         tipbox.geometry(f"+{event.x_root + 20}+{event.y_root + 20}")
