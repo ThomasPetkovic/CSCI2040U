@@ -195,6 +195,35 @@ def view_details():
     else:
         messagebox.showwarning("Error", "Please select an item to view details.")
 
+# Hover functionality to show a tipbox when hovering over an item
+
+# Initialize tipbox as None
+tipbox = None
+
+def on_hover(event):
+    global tipbox
+    if tipbox:
+        tipbox.destroy()  # Remove existing tooltip
+
+    selected_index = listbox.nearest(event.y)
+    if selected_index >= 0:
+        item = sample_data[selected_index]
+        tipbox = Toplevel(root)
+        tipbox.wm_overrideredirect(True)
+        tipbox.geometry(f"+{event.x_root + 20}+{event.y_root + 20}")
+
+        Label(tipbox, text=f"ID: {item['id']}\nName: {item['name']}\nDescription: {item['description']}").pack()
+
+def on_leave(event):
+    global tipbox
+    if tipbox:
+        tipbox.destroy()
+        tipbox = None
+
+listbox.bind("<Motion>", on_hover)
+listbox.bind("<Leave>", on_leave)
+
+
 Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10, pady=10)
 
 # Button to add a new item (placeholder)
