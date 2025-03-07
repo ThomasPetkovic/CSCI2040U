@@ -345,6 +345,7 @@ def refresh_tree():
         tree.insert("", "end", values=(item["name"], item.get("releasedate",""), item.get("albumtitle","")))
     back.rewrite_csv(sample_data)
 
+
 root = Tk()
 root.title("Catalog Management System")
 root.geometry("900x600")
@@ -367,6 +368,32 @@ tree.column("Name", width=200)
 tree.column("Date", width=120)
 tree.column("Album", width=180)
 tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
+
+# Hover functionality to show a tipbox when hovering over an item
+tipbox = None
+
+def show_tipbox(event):
+    global tipbox
+    if tipbox:
+        tipbox.destroy()
+    item = tree.identify_row(event.y)
+    if item:
+        row_values = tree.item(item, "values")
+        if row_values:
+            tipbox = Toplevel(root)
+            tipbox.geometry("300x100")
+            tipbox.overrideredirect(True)
+            tipbox.wm_attributes("-topmost", 1)
+            Label(tipbox, text=f"Name: {row_values[0]}\nDate: {row_values[1]}\nAlbum: {row_values[2]}").pack(pady=5)
+            tipbox.geometry(f"+{event.x_root}+{event.y_root}")
+            tipbox.after(2000, tipbox.destroy)
+tree.bind("<Motion>", show_tipbox)
+
+
+
+
+
+
 
 Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10, pady=10)
 Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10)
