@@ -1,46 +1,56 @@
 from tkinter import *
-from tkinter import messagebox
+from tkinter import messagebox, ttk
 import back
 
-
-# Function to load data from CSV file
 def load_data_from_csv():
     return back.initial_read()
 
-# Load initial data from CSV
 sample_data = load_data_from_csv()
 
-# Function to display item details
 def show_item_details(item):
     details_window = Toplevel(root)
     details_window.title("Item Details")
     details_window.geometry("300x200")
-
-
     Label(details_window, text=f"ID: {item['id']}").pack(pady=5)
     Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
     Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
-
-# Functionality of Registering: 
+def view_details():
+    selected = tree.selection()
+    if not selected:
+        messagebox.showwarning("Error", "Please select an item to view details.")
+        return
+    row_values = tree.item(selected[0], "values")
+    selected_name = row_values[0]
+    selected_date = row_values[1]
+    selected_album = row_values[2]
+    found_item = None
+    for it in sample_data:
+        if (
+            it["name"] == selected_name
+            and it.get("releasedate", "") == selected_date
+            and it.get("albumtitle", "") == selected_album
+        ):
+            found_item = it
+            break
+    if not found_item:
+        messagebox.showwarning("Error", "Item not found in sample_data.")
+    else:
+        show_item_details(found_item)
 
 def register():
     register_window = Toplevel(root)
     register_window.title("Register")
     register_window.geometry("300x300")
-    
     Label(register_window, text="Username:").pack(pady=5)
     username_entry = Entry(register_window)
     username_entry.pack(pady=5)
-    
     Label(register_window, text="Password:").pack(pady=5)
     password_entry = Entry(register_window, show="*")
     password_entry.pack(pady=5)
-
     def save_register():
         username = username_entry.get()
         password = password_entry.get()
-        
         if validate_register(username, password):
             if not is_username_taken(username):
                 with open("register.csv", "a", newline='') as file:
@@ -49,10 +59,8 @@ def register():
                 messagebox.showinfo("Success", "Registration Successful")
             else:
                 messagebox.showwarning("Error", "Username already exists")
-
     Button(register_window, text="Register", command=save_register).pack(pady=5)
 
-    
 def validate_register(username, password):
     if not username or not password:
         messagebox.showwarning("Input Error", "Please enter both username and password.")
@@ -72,39 +80,34 @@ def is_username_taken(username):
         pass
     return False
 
-
-# Functionality of logging in: 
 def login():
     login_window = Toplevel(root)
     login_window.title("Login")
     login_window.geometry("300x300")
-    
     Label(login_window, text="Username:").pack(pady=5)
     username_entry = Entry(login_window)
     username_entry.pack(pady=5)
-    
     Label(login_window, text="Password:").pack(pady=5)
     password_entry = Entry(login_window, show="*")
     password_entry.pack(pady=5)
-
     def check_login():
         username = username_entry.get()
         password = password_entry.get()
-        
         if validate_login(username, password):
-            with open("register.csv", "r") as file:
-                for line in file:
-                    line = line.strip()
-                    if line == f"{username},{password}":
-                        login_window.destroy()
-                        messagebox.showinfo("Success", "Login Successful")
-                        display_username(username)
-                        load_user_data(username)
-                        return
+            try:
+                with open("register.csv", "r") as file:
+                    for line in file:
+                        line = line.strip()
+                        if line == f"{username},{password}":
+                            login_window.destroy()
+                            messagebox.showinfo("Success", "Login Successful")
+                            display_username(username)
+                            load_user_data(username)
+                            return
                 messagebox.showwarning("Error", "Invalid username or password")
-                
+            except FileNotFoundError:
+                messagebox.showwarning("Error", "No users registered yet.")
     Button(login_window, text="Login", command=check_login).pack(pady=5)
-
 
 def validate_login(username, password):
     if not username or not password:
@@ -125,353 +128,253 @@ def load_user_data(username):
         with open(f"{username}_data.csv", "r") as file:
             sample_data = []
             for line in file:
-                id, name, description = line.strip().split(',')
-                sample_data.append({"id": id, "name": name, "description": description})
-        refresh_listbox()
+                id_, name_, desc_ = line.strip().split(',')
+                sample_data.append({"id": id_, "name": name_, "description": desc_})
+        refresh_tree()
     except FileNotFoundError:
         sample_data = []
-        refresh_listbox()
-
-# Functionality of logging out
+        refresh_tree()
 
 def logout():
     logout_window = Toplevel(root)
     logout_window.title("Logout")
     logout_window.geometry("300x300")
-    
     Label(logout_window, text="Are you sure you want to logout?").pack(pady=5)
-    
     def confirm_logout():
         global sample_data
         logout_window.destroy()
         if 'username_label' in globals() and username_label:
             username_label.destroy()
         messagebox.showinfo("Success", "Logout Successful")
-        
-      
         sample_data = []
-        refresh_listbox()
-
+        refresh_tree()
     Button(logout_window, text="Yes", command=confirm_logout).pack(pady=5)
     Button(logout_window, text="No", command=logout_window.destroy).pack(pady=5)
 
-
-
-    Label(details_window, text=f"Album Title: {item['albumtitle']}").pack(pady=5)
-    Label(details_window, text=f"Genre: {item['genre']}").pack(pady=5)
-    Label(details_window, text=f"Release Date: {item['releasedate']}").pack(pady=5)
-
-
-#Functionality of searching items
 def search_item():
-    global searched
-    searched = []
-    entry = search_entry.get()
+    entry = search_entry.get().strip().lower()
+    if not entry:
+        refresh_tree()
+        return
+    for child in tree.get_children():
+        tree.delete(child)
+    found = []
     for item in sample_data:
-        if item['name'].lower().startswith(entry.lower()):
-            searched.append(item)
-    listbox.delete(0, END)
-    if len(searched) != 0:
-        for item in searched:
-            listbox.insert(END, item["name"])
+        if item["name"].lower().startswith(entry):
+            found.append(item)
+    if not found:
+        messagebox.showerror("ERROR", "No matching search results.")
+        refresh_tree()
     else:
-        messagebox.showerror('ERROR', "No matching search results.")
-        refresh_listbox()
+        for it in found:
+            tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
 
-        
-
-# Functionality of adding items
 def add_item():
     add_window = Toplevel(root)
     add_window.title("Add Item")
     add_window.geometry("400x500")
-
     Label(add_window, text="ID:").pack(pady=5)
     id_entry = Entry(add_window)
     id_entry.pack(pady=5)
-    
     Label(add_window, text="Name:").pack(pady=5)
     name_entry = Entry(add_window)
     name_entry.pack(pady=5)
-
     Label(add_window, text="Description:").pack(pady=5)
     description_entry = Entry(add_window)
     description_entry.pack(pady=5)
-
-
     Label(add_window, text="Album Title:").pack(pady=5)
     album_title_entry = Entry(add_window)
     album_title_entry.pack(pady=5)
-
     Label(add_window, text="Genre:").pack(pady=5)
     genre_entry = Entry(add_window)
     genre_entry.pack(pady=5)
-
     Label(add_window, text="Release Date:").pack(pady=5)
     release_date_entry = Entry(add_window)
     release_date_entry.pack(pady=5)
-
-
     def save_item():
-        id = id_entry.get()
-        name = name_entry.get()
-        description = description_entry.get()
-        albumtitle = album_title_entry.get()
-        genre = genre_entry.get()
-        releasedate = release_date_entry.get()
-
-        if validate_inputs(id, name, description):
+        id_ = id_entry.get().strip()
+        name_ = name_entry.get().strip()
+        desc_ = description_entry.get().strip()
+        albumtitle = album_title_entry.get().strip()
+        genre = genre_entry.get().strip()
+        releasedate = release_date_entry.get().strip()
+        if validate_inputs(id_, name_, desc_):
             new_item = {
-                "id": id,
-                "name": name,
-                "description": description,
+                "id": id_,
+                "name": name_,
+                "description": desc_,
                 "albumtitle": albumtitle,
                 "genre": genre,
                 "releasedate": releasedate
             }
             sample_data.append(new_item)
-            refresh_listbox()
+            refresh_tree()
             add_window.destroy()
             save_user_data()
-
     Button(add_window, text="Add Item", command=save_item).pack(pady=5)
 
-   
-def validate_inputs(id, name, description):
-
-    #remove whitespace
-
-    id = id.strip()
-    name = name.strip()
-    description = description.strip()
-    
-    #ID Cannot have Spaces
-    for spaces in range(len(id)):
-        if id[spaces] == " ":
-            messagebox.showwarning("Input Error", "ID cannot contain spaces.")  
-            return False
-    # All Fields have to be filled out
-    if id == "" and name == "" and description == "":
-        messagebox.showwarning("Input Error", "Please enter all fields.")
+def validate_inputs(id_, name_, description_):
+    if not (id_ and name_ and description_):
+        messagebox.showwarning("Input Error", "Please enter ID, Name, and Description.")
         return False
-    if id == "" and  name == "":
-        messagebox.showwarning("Input Error", "Please enter ID and Name.")
-        return False
-    if id == "" and description == "":
-        messagebox.showwarning("Input Error", "Please enter ID and Description.")
-        return False
-    if name == "" and description == "":
-        messagebox.showwarning("Input Error", "Please enter Name and Description.")
-        return False
-    if id == "":
-        messagebox.showwarning("Input Error", "Please enter ID.")
-        return False
-    if name == "":
-        messagebox.showwarning("Input Error", "Please enter Name.")
-        return False
-    if description == "":
-        messagebox.showwarning("Input Error", "Please enter Description.")
-        return False
-    
-    # Id must be an integer
-    if not id.isdigit():
+    if not id_.isdigit():
         messagebox.showwarning("Input Error", "ID must be an integer.")
         return False
-    
-    # ID must be unique
     for item in sample_data:
-        if item["id"] == id:
+        if item["id"] == id_:
             messagebox.showwarning("Input Error", "ID must be unique.")
             return False
     return True
- 
 
 def edit_item():
-    selected_index = listbox.curselection()
-    if not selected_index:
+    selected = tree.selection()
+    if not selected:
         messagebox.showwarning("Error", "Please select an item to edit.")
         return
-
-    item = sample_data[selected_index[0]]
-
+    row_values = tree.item(selected[0], "values")
+    selected_name = row_values[0]
+    selected_date = row_values[1]
+    selected_album = row_values[2]
+    item = None
+    for d in sample_data:
+        if d["name"] == selected_name and d.get("releasedate","") == selected_date and d.get("albumtitle","") == selected_album:
+            item = d
+            break
+    if not item:
+        messagebox.showwarning("Error", "Item not found.")
+        return
     edit_window = Toplevel(root)
     edit_window.title("Edit Item")
     edit_window.geometry("400x500")
-
-    Label(edit_window, text="id:").pack(pady=5)
+    Label(edit_window, text="ID:").pack(pady=5)
     id_entry = Entry(edit_window)
     id_entry.insert(0, item["id"])
     id_entry.pack(pady=5)
-    
-    Label(edit_window, text="name:").pack(pady=5)
+    Label(edit_window, text="Name:").pack(pady=5)
     name_entry = Entry(edit_window)
     name_entry.insert(0, item["name"])
     name_entry.pack(pady=5)
-
-    Label(edit_window, text="description:").pack(pady=5)
+    Label(edit_window, text="Description:").pack(pady=5)
     description_entry = Entry(edit_window)
     description_entry.insert(0, item["description"])
     description_entry.pack(pady=5)
-
     Label(edit_window, text="Album Title:").pack(pady=5)
     album_title_entry = Entry(edit_window)
-    album_title_entry.insert(0, item["albumtitle"])
+    album_title_entry.insert(0, item.get("albumtitle",""))
     album_title_entry.pack(pady=5)
-
     Label(edit_window, text="Genre:").pack(pady=5)
     genre_entry = Entry(edit_window)
-    genre_entry.insert(0, item["genre"])
+    genre_entry.insert(0, item.get("genre",""))
     genre_entry.pack(pady=5)
-
     Label(edit_window, text="Release Date:").pack(pady=5)
     release_date_entry = Entry(edit_window)
-    release_date_entry.insert(0, item["releasedate"])
+    release_date_entry.insert(0, item.get("releasedate",""))
     release_date_entry.pack(pady=5)
-
-    def save_item():
-        new_id = id_entry.get()
-        new_name = name_entry.get()
-        new_description = description_entry.get()
-        new_albumtitle = album_title_entry.get()
-        new_genre = genre_entry.get()
-        new_releasedate = release_date_entry.get()
-
-
-        if validate_inputs(new_id, new_name, new_description):
+    def save_changes():
+        new_id = id_entry.get().strip()
+        new_name = name_entry.get().strip()
+        new_desc = description_entry.get().strip()
+        new_albumtitle = album_title_entry.get().strip()
+        new_genre = genre_entry.get().strip()
+        new_releasedate = release_date_entry.get().strip()
+        if validate_inputs(new_id, new_name, new_desc):
             item["id"] = new_id
             item["name"] = new_name
-            item["description"] = new_description
+            item["description"] = new_desc
             item["albumtitle"] = new_albumtitle
             item["genre"] = new_genre
             item["releasedate"] = new_releasedate
-            
-            refresh_listbox()
+            refresh_tree()
             edit_window.destroy()
             save_user_data()
-
-    Button(edit_window, text="Save Changes", command=save_item).pack(pady=5)
-
-#Function to delete an existing item
+    Button(edit_window, text="Save Changes", command=save_changes).pack(pady=5)
 
 def delete_item():
-
-    selected_index = listbox.curselection()
-    
-    if not selected_index:
-     
-        messagebox.showwarning("Error", "Please select an item to delete.") #If an item is not highlighted, show an error box
+    selected = tree.selection()
+    if not selected:
+        messagebox.showwarning("Error", "Please select an item to delete.")
         return
+    row_values = tree.item(selected[0], "values")
+    selected_name = row_values[0]
+    selected_date = row_values[1]
+    selected_album = row_values[2]
+    to_delete = None
+    for d in sample_data:
+        if d["name"] == selected_name and d.get("releasedate","") == selected_date and d.get("albumtitle","") == selected_album:
+            to_delete = d
+            break
+    if to_delete:
+        sample_data.remove(to_delete)
+        refresh_tree()
+        save_user_data()
+    else:
+        messagebox.showwarning("Error", "Item not found.")
 
-    sample_data.remove(sample_data[selected_index[0]]) #Delete selected item
-    refresh_listbox() #Refresh the display
-    save_user_data()
-
-    return
-
-# Function to save user-specific data to a CSV file
 def save_user_data():
-    username = username_label.cget("text")
+    username = username_label.cget("text") if 'username_label' in globals() else "default_user"
     with open(f"{username}_data.csv", "w", newline='') as file:
         for item in sample_data:
             file.write(f"{item['id']},{item['name']},{item['description']}\n")
 
-# Function to refresh the listbox
-def refresh_listbox():
-    global searched
-    searched = [] #refreshes any searches
-    listbox.delete(0, END) 
-    for item in sample_data: 
-        listbox.insert(END, item["name"]) #adds all data back into the listbox
+ascending_name = True
+ascending_date = True
+ascending_album = True
 
+def on_name_click():
+    global ascending_name
+    sample_data.sort(key=lambda x: x["name"].lower(), reverse=(not ascending_name))
+    ascending_name = not ascending_name
+    refresh_tree()
+
+def on_date_click():
+    global ascending_date
+    sample_data.sort(key=lambda x: x.get("releasedate",""), reverse=(not ascending_date))
+    ascending_date = not ascending_date
+    refresh_tree()
+
+def on_album_click():
+    global ascending_album
+    sample_data.sort(key=lambda x: x.get("albumtitle","").lower(), reverse=(not ascending_album))
+    ascending_album = not ascending_album
+    refresh_tree()
+
+def refresh_tree():
+    for child in tree.get_children():
+        tree.delete(child)
+    for item in sample_data:
+        tree.insert("", "end", values=(item["name"], item.get("releasedate",""), item.get("albumtitle","")))
     back.rewrite_csv(sample_data)
 
-# Main application window
 root = Tk()
 root.title("Catalog Management System")
-root.geometry("800x600")
+root.geometry("900x600")
 
-#Search Entry box
-search_entry = Entry(root, width = 100)
+search_frame = Frame(root)
+search_frame.pack(side=TOP, padx=10, pady=5)
+
+search_entry = Entry(search_frame, width=130)
 search_entry.insert(0, "Search for an item...")
-search_entry.pack(side = TOP,fill = X, padx=10, pady=5,)
+search_entry.pack(side=LEFT)
 
-# Listbox to display catalog items
-listbox = Listbox(root)
-listbox.pack(fill=BOTH, expand=True, padx=10, pady=10)
+search_button = Button(search_frame, text="Search", command=search_item)
+search_button.pack(side=LEFT, padx=5)
 
-# Populate listbox with data from CSV
-refresh_listbox()
-
-# Button to view item details
-def view_details():
-    selected_index = listbox.curselection()
-    if selected_index:
-        selected_item = sample_data[selected_index[0]]
-        show_item_details(selected_item)
-    else:
-        messagebox.showwarning("Error", "Please select an item to view details.")
-
-# Hover functionality to show a tipbox when hovering over an item
-
-# Initialize tipbox as None
-tipbox = None
-
-def on_hover(event):
-    global tipbox
-    if tipbox:
-        tipbox.destroy()  # Remove existing tooltip
-
-    selected_index = listbox.nearest(event.y)
-    if selected_index >= 0:
-        if len(searched) != 0:
-            item = searched[selected_index]
-        else:
-            item = sample_data[selected_index]
-        tipbox = Toplevel(root)
-        tipbox.wm_overrideredirect(True)
-        tipbox.geometry(f"+{event.x_root + 20}+{event.y_root + 20}")
-
-        Label(tipbox, text=f"ID: {item['id']}\nName: {item['name']}\nDescription: {item['description']}").pack()
-
-def on_leave(event):
-    global tipbox
-    if tipbox:
-        tipbox.destroy()
-        tipbox = None
-
-listbox.bind("<Motion>", on_hover)
-listbox.bind("<Leave>", on_leave)
-
+tree = ttk.Treeview(root, columns=("Name","Date","Album"), show="headings")
+tree.heading("Name", text="Name", command=on_name_click)
+tree.heading("Date", text="Date", command=on_date_click)
+tree.heading("Album", text="Album", command=on_album_click)
+tree.column("Name", width=200)
+tree.column("Date", width=120)
+tree.column("Album", width=180)
+tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
 
 Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10, pady=10)
-
-# Button to add a new item (placeholder)
 Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10)
-
-# Button to edit an existing item (placeholder)
 Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
-
-#Button to delete an existing item
 Button(root, text="Delete Item", command=delete_item).pack(side=LEFT, padx=10, pady=10)
-
-
-# Button to register
 Button(root, text="Register", command=register).pack(side=LEFT, padx=10, pady=10)
-
-# Button to login
 Button(root, text="Login", command=login).pack(side=LEFT, padx=10, pady=10)
-
-# Button to logout
 Button(root, text="Logout", command=logout).pack(side=LEFT, padx=10, pady=10)
 
-#Button to confirm search 
-search_button = Button(root,text = "Search", command = search_item)
-search_button.pack(padx = 10, pady = 5)
-search_button.place(x = 745,y = 4)
-
-
-
-
-
-# Run the application
+refresh_tree()
 root.mainloop()

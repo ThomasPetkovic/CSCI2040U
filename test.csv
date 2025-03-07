@@ -1,1 +1,5 @@
-name,description,id
+name,description,id,albumtitle,genre,releasedate
+name2,thomas1,3,solo,rap,2025-02-17
+name ,thomas 1,1,fire,pop,2025-02-12
+name2,thomas12,6,fire,rap,2025-02-17
+name2,thomas1,4,,rap,2025-02-17
