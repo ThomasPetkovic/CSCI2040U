@@ -387,13 +387,8 @@ def show_tipbox(event):
             Label(tipbox, text=f"Name: {row_values[0]}\nDate: {row_values[1]}\nAlbum: {row_values[2]}").pack(pady=5)
             tipbox.geometry(f"+{event.x_root+2}+{event.y_root+2}")
             tipbox.after(2000, tipbox.destroy)
+
 tree.bind("<Motion>", show_tipbox)
-
-
-
-
-
-
 
 Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10, pady=10)
 Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10)
