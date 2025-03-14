@@ -1,6 +1,26 @@
 from tkinter import *
-from tkinter import messagebox, ttk
+from tkinter import messagebox,ttk
+import customtkinter as ctk
 import back
+
+
+#colors
+
+peach = "#FFE5B4"
+dark_peach = "#FFDAB9"
+light_peach = "#FFF5E1"
+maroon = "#800000"
+dark_maroon = "#A52A2A"
+light_maroon = "#CD5C5C"
+text = "#402929"
+
+
+# Appearance
+
+ctk.set_appearance_mode(maroon)
+ctk.set_default_color_theme("blue") #temporary
+
+
 
 def load_data_from_csv():
     return back.initial_read()
@@ -8,12 +28,12 @@ def load_data_from_csv():
 sample_data = load_data_from_csv()
 
 def show_item_details(item):
-    details_window = Toplevel(root)
+    details_window = ctk.CTkToplevel(root)
     details_window.title("Item Details")
     details_window.geometry("300x200")
-    Label(details_window, text=f"ID: {item['id']}").pack(pady=5)
-    Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
-    Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
+    ctk.CTkLabel(details_window, text=f"ID: {item['id']}", text_color=peach).pack(pady=5)
+    ctk.CTkLabel(details_window, text=f"Name: {item['name']}",text_color=peach).pack(pady=5)
+    ctk.CTkLabel(details_window, text=f"Description: {item['description']}",text_color=peach).pack(pady=5)
 
 def view_details():
     selected = tree.selection()
@@ -39,15 +59,17 @@ def view_details():
         show_item_details(found_item)
 
 def register():
-    register_window = Toplevel(root)
+    register_window = ctk.CTkToplevel(root)
     register_window.title("Register")
     register_window.geometry("300x300")
-    Label(register_window, text="Username:").pack(pady=5)
-    username_entry = Entry(register_window)
+    ctk.CTkLabel(register_window, text="Username:", text_color=peach).pack(pady=5)
+    username_entry = ctk.CTkEntry(register_window)
     username_entry.pack(pady=5)
-    Label(register_window, text="Password:").pack(pady=5)
-    password_entry = Entry(register_window, show="*")
+    ctk.CTkLabel(register_window, text="Password:", text_color=peach).pack(pady=5)
+    password_entry = ctk.CTkEntry(register_window, show="*")
     password_entry.pack(pady=5)
+
+
     def save_register():
         username = username_entry.get()
         password = password_entry.get()
@@ -59,7 +81,7 @@ def register():
                 messagebox.showinfo("Success", "Registration Successful")
             else:
                 messagebox.showwarning("Error", "Username already exists")
-    Button(register_window, text="Register", command=save_register).pack(pady=5)
+    ctk.CTkButton(register_window, text="Register", command=save_register, fg_color=maroon,hover_color=dark_maroon).pack(pady=5)
 
 def validate_register(username, password):
     if not username or not password:
@@ -81,14 +103,14 @@ def is_username_taken(username):
     return False
 
 def login():
-    login_window = Toplevel(root)
+    login_window = ctk.CTkToplevel(root)
     login_window.title("Login")
     login_window.geometry("300x300")
-    Label(login_window, text="Username:").pack(pady=5)
-    username_entry = Entry(login_window)
+    ctk.CTkLabel(login_window, text="Username:",text_color=peach).pack(pady=5)
+    username_entry = ctk.CTkEntry(login_window)
     username_entry.pack(pady=5)
-    Label(login_window, text="Password:").pack(pady=5)
-    password_entry = Entry(login_window, show="*")
+    ctk.CTkLabel(login_window, text="Password:",text_color=peach).pack(pady=5)
+    password_entry = ctk.CTkEntry(login_window, show="*")
     password_entry.pack(pady=5)
     def check_login():
         username = username_entry.get()
@@ -107,7 +129,7 @@ def login():
                 messagebox.showwarning("Error", "Invalid username or password")
             except FileNotFoundError:
                 messagebox.showwarning("Error", "No users registered yet.")
-    Button(login_window, text="Login", command=check_login).pack(pady=5)
+    ctk.CTkButton(login_window, text="Login", command=check_login, fg_color=maroon, hover_color=dark_maroon).pack(pady=5)
 
 def validate_login(username, password):
     if not username or not password:
@@ -119,7 +141,7 @@ def display_username(username):
     global username_label
     if 'username_label' in globals():
         username_label.destroy()
-    username_label = Label(root, text=username)
+    username_label = ctk.CTkLabel(root, text=username, text_color=maroon)
     username_label.pack(side=RIGHT, padx=10, pady=10)
 
 def load_user_data(username):
@@ -139,17 +161,17 @@ def logout():
     logout_window = Toplevel(root)
     logout_window.title("Logout")
     logout_window.geometry("300x300")
-    Label(logout_window, text="Are you sure you want to logout?").pack(pady=5)
+    ctk.CTkLabel(logout_window, text="Are you sure you want to logout?",text_color=text).pack(pady=5)
     def confirm_logout():
         global sample_data
         logout_window.destroy()
         if 'username_label' in globals() and username_label:
             username_label.destroy()
         messagebox.showinfo("Success", "Logout Successful")
-        sample_data = []
+        sample_data = load_data_from_csv()
         refresh_tree()
-    Button(logout_window, text="Yes", command=confirm_logout).pack(pady=5)
-    Button(logout_window, text="No", command=logout_window.destroy).pack(pady=5)
+    ctk.CTkButton(logout_window, text="Yes", command=confirm_logout,fg_color=maroon,hover_color=dark_maroon).pack(pady=5)
+    ctk.CTkButton(logout_window, text="No", command=logout_window.destroy,fg_color=light_maroon, hover_color=dark_peach).pack(pady=5)
 
 def search_item():
     entry = search_entry.get().strip().lower()
@@ -170,26 +192,26 @@ def search_item():
             tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
 
 def add_item():
-    add_window = Toplevel(root)
+    add_window = ctk.CTkToplevel(root)
     add_window.title("Add Item")
     add_window.geometry("400x500")
-    Label(add_window, text="ID:").pack(pady=5)
-    id_entry = Entry(add_window)
+    ctk.CTkLabel(add_window, text="ID:",text_color=peach).pack(pady=5)
+    id_entry = ctk.CTkEntry(add_window)
     id_entry.pack(pady=5)
-    Label(add_window, text="Name:").pack(pady=5)
-    name_entry = Entry(add_window)
+    ctk.CTkLabel(add_window, text="Name:",text_color=peach).pack(pady=5)
+    name_entry = ctk.CTkEntry(add_window)
     name_entry.pack(pady=5)
-    Label(add_window, text="Description:").pack(pady=5)
-    description_entry = Entry(add_window)
+    ctk.CTkLabel(add_window, text="Description:",text_color=peach).pack(pady=5)
+    description_entry = ctk.CTkEntry(add_window)
     description_entry.pack(pady=5)
-    Label(add_window, text="Album Title:").pack(pady=5)
-    album_title_entry = Entry(add_window)
+    ctk.CTkLabel(add_window, text="Album Title:",text_color=peach).pack(pady=5)
+    album_title_entry = ctk.CTkEntry(add_window)
     album_title_entry.pack(pady=5)
-    Label(add_window, text="Genre:").pack(pady=5)
-    genre_entry = Entry(add_window)
+    ctk.CTkLabel(add_window, text="Genre:",text_color=peach).pack(pady=5)
+    genre_entry = ctk.CTkEntry(add_window)
     genre_entry.pack(pady=5)
-    Label(add_window, text="Release Date:").pack(pady=5)
-    release_date_entry = Entry(add_window)
+    ctk.CTkLabel(add_window, text="Release Date:",text_color=peach).pack(pady=5)
+    release_date_entry = ctk.CTkEntry(add_window)
     release_date_entry.pack(pady=5)
     def save_item():
         id_ = id_entry.get().strip()
@@ -211,7 +233,7 @@ def add_item():
             refresh_tree()
             add_window.destroy()
             save_user_data()
-    Button(add_window, text="Add Item", command=save_item).pack(pady=5)
+    ctk.CTkButton(add_window, text="Add Item", command=save_item,fg_color=maroon, hover_color=dark_maroon).pack(pady=5)
 
 def validate_inputs(id_, name_, description_):
     if not (id_ and name_ and description_):
@@ -243,31 +265,31 @@ def edit_item():
     if not item:
         messagebox.showwarning("Error", "Item not found.")
         return
-    edit_window = Toplevel(root)
+    edit_window = ctk.CTkToplevel(root)
     edit_window.title("Edit Item")
     edit_window.geometry("400x500")
-    Label(edit_window, text="ID:").pack(pady=5)
-    id_entry = Entry(edit_window)
+    ctk.CTkLabel(edit_window, text="ID:",text_color=peach).pack(pady=5)
+    id_entry = ctk.CTkEntry(edit_window)
     id_entry.insert(0, item["id"])
     id_entry.pack(pady=5)
-    Label(edit_window, text="Name:").pack(pady=5)
-    name_entry = Entry(edit_window)
+    ctk.CTkLabel(edit_window, text="Name:",text_color=peach).pack(pady=5)
+    name_entry = ctk.CTkEntry(edit_window)
     name_entry.insert(0, item["name"])
     name_entry.pack(pady=5)
-    Label(edit_window, text="Description:").pack(pady=5)
-    description_entry = Entry(edit_window)
+    ctk.CTkLabel(edit_window, text="Description:",text_color=peach).pack(pady=5)
+    description_entry = ctk.CTkEntry(edit_window)
     description_entry.insert(0, item["description"])
     description_entry.pack(pady=5)
-    Label(edit_window, text="Album Title:").pack(pady=5)
-    album_title_entry = Entry(edit_window)
+    ctk.CTkLabel(edit_window, text="Album Title:",text_color=peach).pack(pady=5)
+    album_title_entry = ctk.CTkEntry(edit_window)
     album_title_entry.insert(0, item.get("albumtitle",""))
     album_title_entry.pack(pady=5)
-    Label(edit_window, text="Genre:").pack(pady=5)
-    genre_entry = Entry(edit_window)
+    ctk.CTkLabel(edit_window, text="Genre:",text_color=peach).pack(pady=5)
+    genre_entry = ctk.CTkEntry(edit_window)
     genre_entry.insert(0, item.get("genre",""))
     genre_entry.pack(pady=5)
-    Label(edit_window, text="Release Date:").pack(pady=5)
-    release_date_entry = Entry(edit_window)
+    ctk.CTkLabel(edit_window, text="Release Date:",text_color=peach).pack(pady=5)
+    release_date_entry = ctk.CTkEntry(edit_window)
     release_date_entry.insert(0, item.get("releasedate",""))
     release_date_entry.pack(pady=5)
     def save_changes():
@@ -287,7 +309,7 @@ def edit_item():
             refresh_tree()
             edit_window.destroy()
             save_user_data()
-    Button(edit_window, text="Save Changes", command=save_changes).pack(pady=5)
+    ctk.CTkButton(edit_window, text="Save Changes", command=save_changes,fg_color=maroon, hover_color=dark_maroon).pack(pady=5)
 
 def delete_item():
     selected = tree.selection()
@@ -346,19 +368,20 @@ def refresh_tree():
     back.rewrite_csv(sample_data)
 
 
-root = Tk()
+root = ctk.CTk()
 root.title("Catalog Management System")
-root.geometry("900x600")
+root.geometry("1200x700")
+root.configure(fg_color=dark_peach) 
 
-search_frame = Frame(root)
+search_frame = ctk.CTkFrame(root)
 search_frame.pack(side=TOP, padx=10, pady=5)
 
-search_entry = Entry(search_frame, width=130)
+search_entry = ctk.CTkEntry(search_frame, width=130)
 search_entry.insert(0, "Search for an item...")
 search_entry.pack(side=LEFT)
 
-search_button = Button(search_frame, text="Search", command=search_item)
-search_button.pack(side=LEFT, padx=5)
+search_button = ctk.CTkButton(search_frame, text="Search", command=search_item, fg_color=maroon,bg_color=peach, hover_color=dark_maroon)
+search_button.pack(side=LEFT, padx=0)
 
 tree = ttk.Treeview(root, columns=("Name","Date","Album"), show="headings")
 tree.heading("Name", text="Name", command=on_name_click)
@@ -390,13 +413,13 @@ def show_tipbox(event):
 
 tree.bind("<Motion>", show_tipbox)
 
-Button(root, text="View Details", command=view_details).pack(side=LEFT, padx=10, pady=10)
-Button(root, text="Add Item", command=add_item).pack(side=LEFT, padx=10, pady=10)
-Button(root, text="Edit Item", command=edit_item).pack(side=LEFT, padx=10, pady=10)
-Button(root, text="Delete Item", command=delete_item).pack(side=LEFT, padx=10, pady=10)
-Button(root, text="Register", command=register).pack(side=LEFT, padx=10, pady=10)
-Button(root, text="Login", command=login).pack(side=LEFT, padx=10, pady=10)
-Button(root, text="Logout", command=logout).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="View Details", command=view_details,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Add Item", command=add_item,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Edit Item", command=edit_item,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Delete Item", command=delete_item,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Register", command=register,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Login", command=login,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Logout", command=logout,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
 
 refresh_tree()
 root.mainloop()
