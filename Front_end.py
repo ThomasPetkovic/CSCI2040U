@@ -214,16 +214,19 @@ def add_item():
     Button(add_window, text="Add Item", command=save_item).pack(pady=5)
 
 def validate_inputs(id_, name_, description_):
+    id_ = id_.strip()
+    name_ = name_.strip()
+    description_ = description_.strip()
+    
     if not (id_ and name_ and description_):
         messagebox.showwarning("Input Error", "Please enter ID, Name, and Description.")
         return False
     if not id_.isdigit():
         messagebox.showwarning("Input Error", "ID must be an integer.")
         return False
-    for item in sample_data:
-        if item["id"] == id_:
-            messagebox.showwarning("Input Error", "ID must be unique.")
-            return False
+    if any(item["id"] == id_ for item in sample_data):  # Ensure unique ID
+        messagebox.showwarning("Input Error", "ID must be unique.")
+        return False
     return True
 
 def edit_item():

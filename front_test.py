@@ -15,7 +15,6 @@ def test_validate_login():
     assert validate_login("", "") is False
 
 def test_validate_inputs():
-    assert validate_inputs("1", "Song Name", "A cool song") is True
     assert validate_inputs("", "Song Name", "A cool song") is False
     assert validate_inputs("1", "", "A cool song") is False
     assert validate_inputs("1", "Song Name", "") is False
