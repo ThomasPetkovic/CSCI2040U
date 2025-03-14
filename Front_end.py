@@ -184,6 +184,22 @@ def search_item():
     for item in sample_data:
         if item["name"].lower().startswith(entry):
             found.append(item)
+        
+        if item.get("releasedate","").lower().startswith(entry):
+            found.append(item)
+
+        if item.get("albumtitle","").lower().startswith(entry):
+            found.append(item)
+        
+        if item.get("genre","").lower().startswith(entry):
+            found.append(item)
+
+        if item.get("description","").lower().startswith(entry):
+            found.append(item)
+        
+        if item["id"].lower().startswith(entry):
+            found
+        
     if not found:
         messagebox.showerror("ERROR", "No matching search results.")
         refresh_tree()
