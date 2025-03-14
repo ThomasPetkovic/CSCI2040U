@@ -399,4 +399,5 @@ Button(root, text="Login", command=login).pack(side=LEFT, padx=10, pady=10)
 Button(root, text="Logout", command=logout).pack(side=LEFT, padx=10, pady=10)
 
 refresh_tree()
-root.mainloop()
+if __name__ == "__main__":
+    root.mainloop()

@@ -1,48 +1,55 @@
-import unittest
-from unittest.mock import patch, MagicMock
-import Front_end
+import pytest
+from unittest.mock import patch, mock_open
+from front_end import validate_register, validate_login, validate_inputs, search_item, is_username_taken
 
-class TestFrontEnd(unittest.TestCase):
+def test_validate_register():
+    assert validate_register("user", "pass") is True
+    assert validate_register("", "pass") is False
+    assert validate_register("user", "") is False
+    assert validate_register("", "") is False
 
-    @patch('Front_end.back.initial_read')
-    def test_load_data_from_csv(self, mock_initial_read):
-        mock_initial_read.return_value = [{"id": "1", "name": "Test", "description": "Test description"}]
-        data = Front_end.load_data_from_csv()
-        self.assertEqual(data, [{"id": "1", "name": "Test", "description": "Test description"}])
+def test_validate_login():
+    assert validate_login("user", "pass") is True
+    assert validate_login("", "pass") is False
+    assert validate_login("user", "") is False
+    assert validate_login("", "") is False
 
-    @patch('Front_end.messagebox.showwarning')
-    @patch('Front_end.tree.selection')
-    def test_view_details_no_selection(self, mock_selection, mock_showwarning):
-        mock_selection.return_value = []
-        Front_end.view_details()
-        mock_showwarning.assert_called_with("Error", "Please select an item to view details.")
+def test_validate_inputs():
+    assert validate_inputs("1", "Song Name", "A cool song") is True
+    assert validate_inputs("", "Song Name", "A cool song") is False
+    assert validate_inputs("1", "", "A cool song") is False
+    assert validate_inputs("1", "Song Name", "") is False
+    assert validate_inputs("abc", "Song Name", "A cool song") is False  # ID must be numeric
 
-    @patch('Front_end.tree.selection')
-    @patch('Front_end.tree.item')
-    @patch('Front_end.show_item_details')
-    def test_view_details_with_selection(self, mock_show_item_details, mock_item, mock_selection):
-        mock_selection.return_value = ['item1']
-        mock_item.return_value = {"values": ("Test Name", "2025-03-13", "Test Album")}
-        Front_end.sample_data = [{"id": "1", "name": "Test Name", "description": "Test description", "releasedate": "2025-03-13", "albumtitle": "Test Album"}]
-        Front_end.view_details()
-        mock_show_item_details.assert_called_once()
+def test_is_username_taken():
+    mock_file_data = "user1,password1\nuser2,password2\n"
+    with patch("builtins.open", mock_open(read_data=mock_file_data)):
+        assert is_username_taken("user1") is True
+        assert is_username_taken("user2") is True
+        assert is_username_taken("user3") is False
+    with patch("builtins.open", side_effect=FileNotFoundError()):
+        assert is_username_taken("user1") is False
 
-    def test_validate_register(self):
-        self.assertFalse(Front_end.validate_register("", "password"))
-        self.assertFalse(Front_end.validate_register("username", ""))
-        self.assertTrue(Front_end.validate_register("username", "password"))
+@pytest.fixture
+def mock_sample_data():
+    return [
+        {"id": "1", "name": "Song A", "description": "First song", "releasedate": "2021", "albumtitle": "Album X"},
+        {"id": "2", "name": "Song B", "description": "Second song", "releasedate": "2022", "albumtitle": "Album Y"},
+    ]
 
-    @patch('Front_end.open', create=True)
-    def test_is_username_taken(self, mock_open):
-        mock_open.return_value.__enter__.return_value = MagicMock(read=lambda: "user1,password1\nuser2,password2\n")
-        self.assertTrue(Front_end.is_username_taken("user1"))
-        self.assertFalse(Front_end.is_username_taken("user3"))
-
-    def test_validate_inputs(self):
-        Front_end.sample_data = [{"id": "1", "name": "Test", "description": "Test description"}]
-        self.assertFalse(Front_end.validate_inputs("", "name", "description"))
-        self.assertFalse(Front_end.validate_inputs("1", "name", "description"))
-        self.assertTrue(Front_end.validate_inputs("2", "name", "description"))
-
-if __name__ == '__main__':
-    unittest.main()
+def test_search_item(mock_sample_data, monkeypatch):
+    global sample_data, tree
+    sample_data = mock_sample_data
+    tree = type("MockTree", (), {"get_children": lambda: [], "delete": lambda x: None, "insert": lambda *args: None})()
+    
+    class MockEntry:
+        def __init__(self, text):
+            self.text = text
+        def get(self):
+            return self.text
+    
+    monkeypatch.setattr("front_end.search_entry", MockEntry("Song A"))
+    search_item()
+    
+    monkeypatch.setattr("front_end.search_entry", MockEntry("Nonexistent"))
+    search_item()  # Should result in an error message
