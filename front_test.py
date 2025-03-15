@@ -1,7 +1,12 @@
 import pytest
 from unittest.mock import patch, mock_open
 from front_end import validate_register, validate_login, validate_inputs, search_item, is_username_taken
+from unittest.mock import patch
+from tkinter import messagebox
 
+@patch.object(messagebox, "showwarning")
+@patch.object(messagebox, "showinfo")
+@patch.object(messagebox, "showerror")
 def test_validate_register():
     assert validate_register("user", "pass") is True
     assert validate_register("", "pass") is False  # Username cannot be empty
