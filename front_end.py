@@ -171,6 +171,7 @@ def search_item():
     for item in sample_data:
         if item["name"].lower().startswith(entry):
             found.append(item)
+    print(found)
     if not found:
         messagebox.showerror("ERROR", "No matching search results.")
         refresh_tree()
