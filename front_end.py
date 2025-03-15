@@ -1,6 +1,15 @@
 from tkinter import *
 from tkinter import messagebox, ttk
 import back
+import os
+
+# Check if running in GitHub Actions
+GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+
+if GITHUB_ACTIONS:
+    import tkinter
+    tkinter.Tk().withdraw()  # Prevent GUI from launching
+
 
 def load_data_from_csv():
     return back.initial_read()
