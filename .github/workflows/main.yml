@@ -1,12 +1,6 @@
 name: Run Pytest
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: [push, pull_request]
 
 jobs:
   test:
@@ -14,18 +8,17 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Ensures your code is available
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11.4'  # Change to your required Python version
+          python-version: '3.9'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest  # Ensure pytest is installed
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest  # Add other dependencies if needed
 
       - name: Run pytest
-        run: python -m pytest
+        run: pytest --disable-warnings  # Run pytest manually
