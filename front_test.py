@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, mock_open
-from Front_end import validate_register, validate_login, validate_inputs, search_item, is_username_taken
+from front_end import validate_register, validate_login, validate_inputs, search_item, is_username_taken
 
 def test_validate_register():
     assert validate_register("user", "pass") is True
@@ -47,8 +47,8 @@ def test_search_item(mock_sample_data, monkeypatch):
         def get(self):
             return self.text
     
-    monkeypatch.setattr("Front_end.search_entry", MockEntry("Song A"))
+    monkeypatch.setattr("front_end.search_entry", MockEntry("Song A"))
     search_item()
     
-    monkeypatch.setattr("Front_end.search_entry", MockEntry("Nonexistent"))
+    monkeypatch.setattr("front_end.search_entry", MockEntry("Nonexistent"))
     search_item()  # Should result in an error message
