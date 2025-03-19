@@ -27,10 +27,7 @@ jobs:
 
       - name: Build with PyInstaller
         run: |
-          pyinstaller --onefile --windowed --name "CatalogManagementSystem" \
-          --add-data "back.py;." \
-          --add-data "register.csv;." \
-          --add-data "test.csv;." front_end.py
+          pyinstaller --onefile --windowed --name "CatalogManagementSystem" --add-data "back.py;." --add-data "register.csv;." --add-data "test.csv;." front_end.py
 
       - name: Copy test.csv to build directory
         run: copy test.csv dist\
