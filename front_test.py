@@ -69,3 +69,8 @@ def test_search_item(mock_showerror, mock_showinfo, mock_showwarning, mock_sampl
     
     monkeypatch.setattr("front_end.search_entry", MockEntry("Nonexistent"))
     search_item()  # Should result in an error message
+
+# test driven development test for lyrical preview function
+def test_lyrical_preview():
+    assert lyrical_preview("Song A") == "Lyrics for Song A\n\nThis is the first song\nIt's a cool song\n"
+    assert lyrical_preview("Song B") == "Lyrics for Song B\n\nThis is the second song\nIt's a cool song\n"
