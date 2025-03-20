@@ -358,7 +358,7 @@ def refresh_tree():
         tree.insert("", "end", values=(item["name"], item.get("releasedate",""), item.get("albumtitle","")))
     back.rewrite_csv(sample_data)
 
-def lyrical_preview():
+def lyrical_preview(song):
     return "Nah, I'm good."
 
 
