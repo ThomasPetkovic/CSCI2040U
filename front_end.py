@@ -358,6 +358,9 @@ def refresh_tree():
         tree.insert("", "end", values=(item["name"], item.get("releasedate",""), item.get("albumtitle","")))
     back.rewrite_csv(sample_data)
 
+def lyrical_preview():
+    return "Nah, I'm good."
+
 
 root = Tk()
 root.title("Catalog Management System")
