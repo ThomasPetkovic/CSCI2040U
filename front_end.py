@@ -17,22 +17,32 @@ def load_data_from_csv():
 sample_data = load_data_from_csv()
 
 def show_item_details(item):
+
+    # Set up detail window
     details_window = Toplevel(root)
     details_window.title("Item Details")
     details_window.geometry("300x200")
+
+    # Populate window with item data
     Label(details_window, text=f"ID: {item['id']}").pack(pady=5)
     Label(details_window, text=f"Name: {item['name']}").pack(pady=5)
     Label(details_window, text=f"Description: {item['description']}").pack(pady=5)
 
 def view_details():
+
+    # Choose an item based on what user selected
     selected = tree.selection()
-    if not selected:
+    if not selected: # If no item is selected
         messagebox.showwarning("Error", "Please select an item to view details.")
         return
+    
+    # Get pertinent values
     row_values = tree.item(selected[0], "values")
     selected_name = row_values[0]
     selected_date = row_values[1]
     selected_album = row_values[2]
+    
+    # Loop through database and try to find item with matching values
     found_item = None
     for it in sample_data:
         if (
@@ -42,39 +52,51 @@ def view_details():
         ):
             found_item = it
             break
-    if not found_item:
+    
+    if not found_item: # If for some reason the selected song is not in the database
         messagebox.showwarning("Error", "Item not found in sample_data.")
+    
     else:
         show_item_details(found_item)
 
 def register():
+
+    # Set up registry window
     register_window = Toplevel(root)
     register_window.title("Register")
     register_window.geometry("300x300")
+
+    # Set up username and password fields
     Label(register_window, text="Username:").pack(pady=5)
     username_entry = Entry(register_window)
     username_entry.pack(pady=5)
     Label(register_window, text="Password:").pack(pady=5)
     password_entry = Entry(register_window, show="*")
     password_entry.pack(pady=5)
+    
+    # Helper method to add in the Register button
     def save_register():
+        
+        # Get entered username and passwords
         username = username_entry.get()
         password = password_entry.get()
-        if validate_register(username, password):
-            if not is_username_taken(username):
+
+        if back.validate_register(username, password): # If fields are not empty
+            if not is_username_taken(username): # If username does not already exist
+
+                # Save username and password in a file
                 with open("register.csv", "a", newline='') as file:
                     file.write(f"{username},{password}\n")
+
+                # Clean up
                 register_window.destroy()
                 messagebox.showinfo("Success", "Registration Successful")
+
             else:
                 messagebox.showwarning("Error", "Username already exists")
-    Button(register_window, text="Register", command=save_register).pack(pady=5)
 
-def validate_register(username, password):
-    if not username or not password:
-        messagebox.showwarning("Input Error", "Please enter both username and password.")
-        return False
-    return True
+    # Add save_register() method to Register button
+    Button(register_window, text="Register", command=save_register).pack(pady=5)
 
 def is_username_taken(username):
     try:
@@ -90,39 +112,49 @@ def is_username_taken(username):
     return False
 
 def login():
+
+    # Set up login window
     login_window = Toplevel(root)
     login_window.title("Login")
     login_window.geometry("300x300")
+
+    # Set up username and password fields
     Label(login_window, text="Username:").pack(pady=5)
     username_entry = Entry(login_window)
     username_entry.pack(pady=5)
     Label(login_window, text="Password:").pack(pady=5)
     password_entry = Entry(login_window, show="*")
     password_entry.pack(pady=5)
+    
+    # Helper method to add in the Login button
     def check_login():
+
+        # Get entered username and password
         username = username_entry.get()
         password = password_entry.get()
-        if validate_login(username, password):
+
+        if back.validate_login(username, password): # If fields are not empty
             try:
+                
+                # Search for username and password in the file
                 with open("register.csv", "r") as file:
                     for line in file:
                         line = line.strip()
-                        if line == f"{username},{password}":
+                        if line == f"{username},{password}": # If username and password found
+                            # Confirmation and cleanup
                             login_window.destroy()
                             messagebox.showinfo("Success", "Login Successful")
                             display_username(username)
                             load_user_data(username)
                             return
-                messagebox.showwarning("Error", "Invalid username or password")
-            except FileNotFoundError:
-                messagebox.showwarning("Error", "No users registered yet.")
-    Button(login_window, text="Login", command=check_login).pack(pady=5)
+                
+                messagebox.showwarning("Error", "Invalid username or password") # If not found
 
-def validate_login(username, password):
-    if not username or not password:
-        messagebox.showwarning("Input Error", "Please enter both username and password.")
-        return False
-    return True
+            except FileNotFoundError: # If no accounts created
+                messagebox.showwarning("Error", "No users registered yet.")
+
+    # Add check_login() method to Login button
+    Button(login_window, text="Login", command=check_login).pack(pady=5)
 
 def display_username(username):
     global username_label
@@ -130,19 +162,6 @@ def display_username(username):
         username_label.destroy()
     username_label = Label(root, text=username)
     username_label.pack(side=RIGHT, padx=10, pady=10)
-
-def load_user_data(username):
-    global sample_data
-    try:
-        with open(f"{username}_data.csv", "r") as file:
-            sample_data = []
-            for line in file:
-                id_, name_, desc_ = line.strip().split(',')
-                sample_data.append({"id": id_, "name": name_, "description": desc_})
-        refresh_tree()
-    except FileNotFoundError:
-        sample_data = []
-        refresh_tree()
 
 def logout():
     logout_window = Toplevel(root)
@@ -159,6 +178,19 @@ def logout():
         refresh_tree()
     Button(logout_window, text="Yes", command=confirm_logout).pack(pady=5)
     Button(logout_window, text="No", command=logout_window.destroy).pack(pady=5)
+
+def load_user_data(username):
+    global sample_data
+    try:
+        with open(f"{username}_data.csv", "r") as file:
+            sample_data = []
+            for line in file:
+                id_, name_, desc_ = line.strip().split(',')
+                sample_data.append({"id": id_, "name": name_, "description": desc_})
+        refresh_tree()
+    except FileNotFoundError:
+        sample_data = []
+        refresh_tree()
 
 def search_item():
     entry = search_entry.get().strip().lower()
@@ -180,9 +212,13 @@ def search_item():
             tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
 
 def add_item():
+
+    # Set up add window
     add_window = Toplevel(root)
     add_window.title("Add Item")
     add_window.geometry("400x500")
+    
+    # Set up detail fields
     Label(add_window, text="ID:").pack(pady=5)
     id_entry = Entry(add_window)
     id_entry.pack(pady=5)
@@ -201,14 +237,20 @@ def add_item():
     Label(add_window, text="Release Date:").pack(pady=5)
     release_date_entry = Entry(add_window)
     release_date_entry.pack(pady=5)
+    
+    # Helper method to add in the Add Item button
     def save_item():
+
+        # Get entered fields
         id_ = id_entry.get().strip()
         name_ = name_entry.get().strip()
         desc_ = description_entry.get().strip()
         albumtitle = album_title_entry.get().strip()
         genre = genre_entry.get().strip()
         releasedate = release_date_entry.get().strip()
-        if validate_inputs(id_, name_, desc_):
+
+        if back.validate_inputs(id_, name_, desc_, sample_data): # If no empty fields
+            # Create new item with details
             new_item = {
                 "id": id_,
                 "name": name_,
@@ -217,27 +259,13 @@ def add_item():
                 "genre": genre,
                 "releasedate": releasedate
             }
-            sample_data.append(new_item)
-            refresh_tree()
+            sample_data.append(new_item) # Add to database
+            refresh_tree() # Refresh viewing tree
             add_window.destroy()
-            save_user_data()
-    Button(add_window, text="Add Item", command=save_item).pack(pady=5)
-
-def validate_inputs(id_, name_, description_):
-    id_ = id_.strip()
-    name_ = name_.strip()
-    description_ = description_.strip()
+            save_user_data() # Modify user's list of songs
     
-    if not (id_ and name_ and description_):
-        messagebox.showwarning("Input Error", "Please enter ID, Name, and Description.")
-        return False
-    if not id_.isdigit():
-        messagebox.showwarning("Input Error", "ID must be an integer.")
-        return False
-    if any(item["id"] == id_ for item in sample_data):  # Ensure unique ID
-        messagebox.showwarning("Input Error", "ID must be unique.")
-        return False
-    return True
+    # Add save_item() method to Add Item button
+    Button(add_window, text="Add Item", command=save_item).pack(pady=5)
 
 def edit_item():
     selected = tree.selection()
@@ -290,7 +318,7 @@ def edit_item():
         new_albumtitle = album_title_entry.get().strip()
         new_genre = genre_entry.get().strip()
         new_releasedate = release_date_entry.get().strip()
-        if validate_inputs(new_id, new_name, new_desc):
+        if back.validate_inputs(new_id, new_name, new_desc, sample_data):
             item["id"] = new_id
             item["name"] = new_name
             item["description"] = new_desc
