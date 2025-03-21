@@ -34,7 +34,7 @@ def show_item_details(item):
     ctk.CTkLabel(details_window, text=f"ID: {item['id']}", text_color=peach).pack(pady=5)
     ctk.CTkLabel(details_window, text=f"Name: {item['name']}",text_color=peach).pack(pady=5)
     ctk.CTkLabel(details_window, text=f"Description: {item['description']}",text_color=peach).pack(pady=5)
-    ctk.CTkButton(details_window, text="Preview Lyrics", command = preview_lyrics,fg_color=maroon,hover_color=dark_maroon).pack(pady=5)
+    ctk.CTkButton(details_window, text="Preview Lyrics", command = lambda: preview_lyrics(item),fg_color=maroon,hover_color=dark_maroon).pack(pady=5)
 
 def view_details():
     selected = tree.selection()
@@ -209,10 +209,11 @@ def search_item():
             tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
 
 
-def preview_lyrics():
+def preview_lyrics(item):
     preview_window = ctk.CTkToplevel(root)
     preview_window.title("Lyrics Preview")
     preview_window.geometry("400x500")
+    back.find_lyrics(item)
 
 def add_item():
     add_window = ctk.CTkToplevel(root)
