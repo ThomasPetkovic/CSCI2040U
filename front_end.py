@@ -213,7 +213,7 @@ def preview_lyrics(item):
     preview_window = ctk.CTkToplevel(root)
     preview_window.title("Lyrics Preview")
     preview_window.geometry("400x500")
-    back.find_lyrics(item)
+    lyrics_list = back.get_lyrics(item)
 
 def add_item():
     add_window = ctk.CTkToplevel(root)
