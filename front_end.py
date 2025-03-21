@@ -253,7 +253,7 @@ def preview_lyrics(item):
     lyrics_text = "\n".join(lyrics_list)
 
     # 3. Create a read-only textbox that fills/resizes with the window
-    text_widget = ctk.CTkTextbox(preview_window, wrap="word")  
+    text_widget = ctk.CTkTextbox(preview_window, text_color=peach, wrap="word")  
     text_widget.insert("1.0", lyrics_text)
     text_widget.configure(state="disabled")
     text_widget.pack(fill=BOTH, expand=True, padx=10, pady=10)
