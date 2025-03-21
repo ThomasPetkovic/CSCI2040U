@@ -2,17 +2,21 @@ from tkinter import *
 from tkinter import messagebox,ttk
 import customtkinter as ctk
 import back
+from tkinter import filedialog
+from PIL import Image, ImageTk
 
 
 #colors
 
 peach = "#FFE5B4"
-dark_peach = "#FFDAB9"
-light_peach = "#FFF5E1"
+dark_peach = "#FFE5D9"
+light_peach = "#FDEEEB"
 maroon = "#800000"
-dark_maroon = "#A52A2A"
-light_maroon = "#CD5C5C"
-text = "#402929"
+dark_maroon = "#6B0F1A"
+light_maroon = "#FAD4C0"
+text = "#4B0A12"
+brown = "#8f4535"
+hover_maroon = "#9A1B1F"
 
 
 # Appearance
@@ -30,11 +34,39 @@ sample_data = load_data_from_csv()
 def show_item_details(item):
     details_window = ctk.CTkToplevel(root)
     details_window.title("Item Details")
-    details_window.geometry("300x200")
+    details_window.geometry("300x400")
     ctk.CTkLabel(details_window, text=f"ID: {item['id']}", text_color=peach).pack(pady=5)
     ctk.CTkLabel(details_window, text=f"Name: {item['name']}",text_color=peach).pack(pady=5)
     ctk.CTkLabel(details_window, text=f"Description: {item['description']}",text_color=peach).pack(pady=5)
+    
+    ctk.CTkLabel(details_window, text=f"Image: {item.get('albumtitle','')}",text_color=peach).pack(pady=5)
 
+    image_display = ctk.CTkLabel(details_window,text="")
+    image_display.pack(pady=5)
+
+    def load_image(path):
+        try:
+            img = Image.open(path)
+            img = img.resize((100, 100))
+            photo = ImageTk.PhotoImage(img)
+            image_display.configure(image=photo)
+            image_display.image = photo
+        except Exception as e:
+            messagebox.showerror("Error", f"Error : {e}")
+
+    if "image_path" in item and item["image_path"]:
+        load_image(item["image_path"])
+
+    
+    def upload_image():
+        path = filedialog.askopenfilename(
+            filetypes=[("Image Files", "*.jpg *.jpeg *.png *.img")]
+        )
+        if path:
+            item["image_path"] = path
+            load_image(path)
+
+    ctk.CTkButton(details_window, text="Upload Image", command=upload_image,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 def view_details():
     selected = tree.selection()
     if not selected:
@@ -81,7 +113,7 @@ def register():
                 messagebox.showinfo("Success", "Registration Successful")
             else:
                 messagebox.showwarning("Error", "Username already exists")
-    ctk.CTkButton(register_window, text="Register", command=save_register, fg_color=maroon,hover_color=dark_maroon).pack(pady=5)
+    ctk.CTkButton(register_window, text="Register", command=save_register, fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
 
 def validate_register(username, password):
     if not username or not password:
@@ -129,7 +161,7 @@ def login():
                 messagebox.showwarning("Error", "Invalid username or password")
             except FileNotFoundError:
                 messagebox.showwarning("Error", "No users registered yet.")
-    ctk.CTkButton(login_window, text="Login", command=check_login, fg_color=maroon, hover_color=dark_maroon).pack(pady=5)
+    ctk.CTkButton(login_window, text="Login", command=check_login, fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
 def validate_login(username, password):
     if not username or not password:
@@ -154,11 +186,11 @@ def load_user_data(username):
                 sample_data.append({"id": id_, "name": name_, "description": desc_})
         refresh_tree()
     except FileNotFoundError:
-        sample_data = []
+        
         refresh_tree()
 
 def logout():
-    logout_window = Toplevel(root)
+    logout_window = ctk.CTkToplevel(root)
     logout_window.title("Logout")
     logout_window.geometry("300x300")
     ctk.CTkLabel(logout_window, text="Are you sure you want to logout?",text_color=text).pack(pady=5)
@@ -170,7 +202,7 @@ def logout():
         messagebox.showinfo("Success", "Logout Successful")
         sample_data = load_data_from_csv()
         refresh_tree()
-    ctk.CTkButton(logout_window, text="Yes", command=confirm_logout,fg_color=maroon,hover_color=dark_maroon).pack(pady=5)
+    ctk.CTkButton(logout_window, text="Yes", command=confirm_logout,fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
     ctk.CTkButton(logout_window, text="No", command=logout_window.destroy,fg_color=light_maroon, hover_color=dark_peach).pack(pady=5)
 
 def search_item():
@@ -249,7 +281,7 @@ def add_item():
             refresh_tree()
             add_window.destroy()
             save_user_data()
-    ctk.CTkButton(add_window, text="Add Item", command=save_item,fg_color=maroon, hover_color=dark_maroon).pack(pady=5)
+    ctk.CTkButton(add_window, text="Add Item", command=save_item,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
 def validate_inputs(id_, name_, description_):
     if not (id_ and name_ and description_):
@@ -325,7 +357,7 @@ def edit_item():
             refresh_tree()
             edit_window.destroy()
             save_user_data()
-    ctk.CTkButton(edit_window, text="Save Changes", command=save_changes,fg_color=maroon, hover_color=dark_maroon).pack(pady=5)
+    ctk.CTkButton(edit_window, text="Save Changes", command=save_changes,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
 def delete_item():
     selected = tree.selection()
@@ -352,8 +384,8 @@ def save_user_data():
     username = username_label.cget("text") if 'username_label' in globals() else "default_user"
     with open(f"{username}_data.csv", "w", newline='') as file:
         for item in sample_data:
-            file.write(f"{item['id']},{item['name']},{item['description']}\n")
-
+            file.write(f"{item['id']},{item['name']},{item['description']},{item.get('albumtitle','')},{item.get('genre','')},{item.get('releasedate','')},{item.get('image_path','')}\n")
+            
 ascending_name = True
 ascending_date = True
 ascending_album = True
@@ -387,7 +419,7 @@ def refresh_tree():
 root = ctk.CTk()
 root.title("Catalog Management System")
 root.geometry("1200x700")
-root.configure(fg_color=dark_peach) 
+root.configure(fg_color=light_maroon, bg_color=peach) 
 
 search_frame = ctk.CTkFrame(root)
 search_frame.pack(side=TOP, padx=10, pady=5)
@@ -396,8 +428,16 @@ search_entry = ctk.CTkEntry(search_frame, width=130)
 search_entry.insert(0, "Search for an item...")
 search_entry.pack(side=LEFT)
 
-search_button = ctk.CTkButton(search_frame, text="Search", command=search_item, fg_color=maroon,bg_color=peach, hover_color=dark_maroon)
+search_button = ctk.CTkButton(search_frame, text="Search 🔍", command=search_item, fg_color=maroon,bg_color=peach, hover_color=brown)
 search_button.pack(side=LEFT, padx=0)
+
+style = ttk.Style()
+style.theme_use("clam")
+
+style.configure("Treeview", foreground="black", background=peach, rowheight=25, fieldbackground=peach)
+style.configure("Treeview.Heading", background=brown, foreground=peach, relief="flat")
+style.map("Treeview", background=[("selected", maroon)], foreground=[("selected", peach)])
+style.map("Treeview.Heading", background=[("pressed", maroon)], foreground=[("pressed", peach)])
 
 tree = ttk.Treeview(root, columns=("Name","Date","Album"), show="headings")
 tree.heading("Name", text="Name", command=on_name_click)
@@ -406,6 +446,8 @@ tree.heading("Album", text="Album", command=on_album_click)
 tree.column("Name", width=200)
 tree.column("Date", width=120)
 tree.column("Album", width=180)
+
+
 tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
 
 # Hover functionality to show a tipbox when hovering over an item
@@ -429,13 +471,14 @@ def show_tipbox(event):
 
 tree.bind("<Motion>", show_tipbox)
 
-ctk.CTkButton(root, text="View Details", command=view_details,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Add Item", command=add_item,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Edit Item", command=edit_item,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Delete Item", command=delete_item,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Register", command=register,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Login", command=login,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Logout", command=logout,fg_color=maroon, hover_color=dark_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Delete Item 🗑️", command=delete_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Register 📝", command=register,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Login 🔓", command=login,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
 
 refresh_tree()
 root.mainloop()
