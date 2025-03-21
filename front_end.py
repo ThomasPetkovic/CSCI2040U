@@ -213,7 +213,20 @@ def preview_lyrics(item):
     preview_window = ctk.CTkToplevel(root)
     preview_window.title("Lyrics Preview")
     preview_window.geometry("400x500")
+    preview_window.resizable(True, True)  # Allow the user to resize
+
+    # 1. Fetch lyrics as a list of lines
     lyrics_list = back.get_lyrics(item)
+    # 2. Join into a single string
+    lyrics_text = "\n".join(lyrics_list)
+
+    # 3. Create a read-only textbox that fills/resizes with the window
+    text_widget = ctk.CTkTextbox(preview_window, wrap="word")  
+    text_widget.insert("1.0", lyrics_text)
+    text_widget.configure(state="disabled")
+    text_widget.pack(fill=BOTH, expand=True, padx=10, pady=10)
+
+
 
 def add_item():
     add_window = ctk.CTkToplevel(root)
@@ -403,6 +416,13 @@ search_frame.pack(side=TOP, padx=10, pady=5)
 search_entry = ctk.CTkEntry(search_frame, width=130)
 search_entry.insert(0, "Search for an item...")
 search_entry.pack(side=LEFT)
+
+def clear_placeholder(event):
+    if search_entry.get() == "Search for an item...":
+        search_entry.delete(0, END)
+
+search_entry.bind("<FocusIn>", clear_placeholder)
+
 
 search_button = ctk.CTkButton(search_frame, text="Search", command=search_item, fg_color=maroon,bg_color=peach, hover_color=dark_maroon)
 search_button.pack(side=LEFT, padx=0)
