@@ -40,6 +40,7 @@ def show_item_details(item):
     ctk.CTkLabel(details_window, text=f"Description: {item['description']}",text_color=peach).pack(pady=5)
     
     ctk.CTkLabel(details_window, text=f"Image: {item.get('albumtitle','')}",text_color=peach).pack(pady=5)
+    ctk.CTkButton(details_window, text="Preview Lyrics", command = lambda: preview_lyrics(item),fg_color=maroon,hover_color=dark_maroon).pack(pady=5)
 
     image_display = ctk.CTkLabel(details_window,text="")
     image_display.pack(pady=5)
@@ -239,6 +240,26 @@ def search_item():
         for it in found:
             tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
 
+
+def preview_lyrics(item):
+    preview_window = ctk.CTkToplevel(root)
+    preview_window.title("Lyrics Preview")
+    preview_window.geometry("400x500")
+    preview_window.resizable(True, True)  # Allow the user to resize
+
+    # 1. Fetch lyrics as a list of lines
+    lyrics_list = back.get_lyrics(item)
+    # 2. Join into a single string
+    lyrics_text = "\n".join(lyrics_list)
+
+    # 3. Create a read-only textbox that fills/resizes with the window
+    text_widget = ctk.CTkTextbox(preview_window, wrap="word")  
+    text_widget.insert("1.0", lyrics_text)
+    text_widget.configure(state="disabled")
+    text_widget.pack(fill=BOTH, expand=True, padx=10, pady=10)
+
+
+
 def add_item():
     add_window = ctk.CTkToplevel(root)
     add_window.title("Add Item")
@@ -429,6 +450,14 @@ search_entry.insert(0, "Search for an item...")
 search_entry.pack(side=LEFT)
 
 search_button = ctk.CTkButton(search_frame, text="Search 🔍", command=search_item, fg_color=maroon,bg_color=peach, hover_color=brown)
+def clear_placeholder(event):
+    if search_entry.get() == "Search for an item...":
+        search_entry.delete(0, END)
+
+search_entry.bind("<FocusIn>", clear_placeholder)
+
+
+search_button = ctk.CTkButton(search_frame, text="Search", command=search_item, fg_color=maroon,bg_color=peach, hover_color=dark_maroon)
 search_button.pack(side=LEFT, padx=0)
 
 style = ttk.Style()
