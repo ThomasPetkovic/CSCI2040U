@@ -4,7 +4,7 @@ import customtkinter as ctk
 import back
 from tkinter import filedialog
 from PIL import Image, ImageTk
-
+import os
 
 #colors
 
@@ -26,12 +26,22 @@ ctk.set_default_color_theme("blue") #temporary
 
 
 
+# Check if running in GitHub Actions
+GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
+
+if GITHUB_ACTIONS:
+    import tkinter
+    tkinter.Tk().withdraw()  # Prevent GUI from launching
+
+
+
 def load_data_from_csv():
     return back.initial_read()
 
 sample_data = load_data_from_csv()
 
 def show_item_details(item):
+
     details_window = ctk.CTkToplevel(root)
     details_window.title("Item Details")
     details_window.geometry("300x400")
@@ -68,6 +78,7 @@ def show_item_details(item):
             load_image(path)
 
     ctk.CTkButton(details_window, text="Upload Image", command=upload_image,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
+
 def view_details():
     selected = tree.selection()
     if not selected:
@@ -92,6 +103,7 @@ def view_details():
         show_item_details(found_item)
 
 def register():
+
     register_window = ctk.CTkToplevel(root)
     register_window.title("Register")
     register_window.geometry("300x300")
@@ -101,6 +113,7 @@ def register():
     ctk.CTkLabel(register_window, text="Password:", text_color=peach).pack(pady=5)
     password_entry = ctk.CTkEntry(register_window, show="*")
     password_entry.pack(pady=5)
+
 
 
     def save_register():
@@ -114,7 +127,9 @@ def register():
                 messagebox.showinfo("Success", "Registration Successful")
             else:
                 messagebox.showwarning("Error", "Username already exists")
+
     ctk.CTkButton(register_window, text="Register", command=save_register, fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
+
 
 def validate_register(username, password):
     if not username or not password:
@@ -136,6 +151,7 @@ def is_username_taken(username):
     return False
 
 def login():
+
     login_window = ctk.CTkToplevel(root)
     login_window.title("Login")
     login_window.geometry("300x300")
@@ -144,6 +160,8 @@ def login():
     username_entry.pack(pady=5)
     ctk.CTkLabel(login_window, text="Password:",text_color=peach).pack(pady=5)
     password_entry = ctk.CTkEntry(login_window, show="*")
+
+
     password_entry.pack(pady=5)
     def check_login():
         username = username_entry.get()
@@ -162,7 +180,9 @@ def login():
                 messagebox.showwarning("Error", "Invalid username or password")
             except FileNotFoundError:
                 messagebox.showwarning("Error", "No users registered yet.")
+
     ctk.CTkButton(login_window, text="Login", command=check_login, fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
+
 
 def validate_login(username, password):
     if not username or not password:
@@ -174,7 +194,9 @@ def display_username(username):
     global username_label
     if 'username_label' in globals():
         username_label.destroy()
+
     username_label = ctk.CTkLabel(root, text=username, text_color=maroon)
+
     username_label.pack(side=RIGHT, padx=10, pady=10)
 
 def load_user_data(username):
@@ -187,6 +209,7 @@ def load_user_data(username):
                 sample_data.append({"id": id_, "name": name_, "description": desc_})
         refresh_tree()
     except FileNotFoundError:
+
         
         refresh_tree()
 
@@ -195,12 +218,14 @@ def logout():
     logout_window.title("Logout")
     logout_window.geometry("300x300")
     ctk.CTkLabel(logout_window, text="Are you sure you want to logout?",text_color=text).pack(pady=5)
+
     def confirm_logout():
         global sample_data
         logout_window.destroy()
         if 'username_label' in globals() and username_label:
             username_label.destroy()
         messagebox.showinfo("Success", "Logout Successful")
+
         sample_data = load_data_from_csv()
         refresh_tree()
     ctk.CTkButton(logout_window, text="Yes", command=confirm_logout,fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
@@ -217,6 +242,7 @@ def search_item():
     for item in sample_data:
         if item["name"].lower().startswith(entry):
             found.append(item)
+
         
         if item.get("releasedate","").lower().startswith(entry):
             found.append(item)
@@ -233,6 +259,7 @@ def search_item():
         if item["id"].lower().startswith(entry):
             found
         
+
     if not found:
         messagebox.showerror("ERROR", "No matching search results.")
         refresh_tree()
@@ -281,6 +308,7 @@ def add_item():
     genre_entry.pack(pady=5)
     ctk.CTkLabel(add_window, text="Release Date:",text_color=peach).pack(pady=5)
     release_date_entry = ctk.CTkEntry(add_window)
+
     release_date_entry.pack(pady=5)
     def save_item():
         id_ = id_entry.get().strip()
@@ -302,19 +330,23 @@ def add_item():
             refresh_tree()
             add_window.destroy()
             save_user_data()
+
     ctk.CTkButton(add_window, text="Add Item", command=save_item,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
 def validate_inputs(id_, name_, description_):
+
     if not (id_ and name_ and description_):
         messagebox.showwarning("Input Error", "Please enter ID, Name, and Description.")
         return False
     if not id_.isdigit():
         messagebox.showwarning("Input Error", "ID must be an integer.")
         return False
+
     for item in sample_data:
         if item["id"] == id_:
             messagebox.showwarning("Input Error", "ID must be unique.")
             return False
+
     return True
 
 def edit_item():
@@ -334,6 +366,7 @@ def edit_item():
     if not item:
         messagebox.showwarning("Error", "Item not found.")
         return
+
     edit_window = ctk.CTkToplevel(root)
     edit_window.title("Edit Item")
     edit_window.geometry("400x500")
@@ -359,6 +392,7 @@ def edit_item():
     genre_entry.pack(pady=5)
     ctk.CTkLabel(edit_window, text="Release Date:",text_color=peach).pack(pady=5)
     release_date_entry = ctk.CTkEntry(edit_window)
+
     release_date_entry.insert(0, item.get("releasedate",""))
     release_date_entry.pack(pady=5)
     def save_changes():
@@ -378,6 +412,7 @@ def edit_item():
             refresh_tree()
             edit_window.destroy()
             save_user_data()
+
     ctk.CTkButton(edit_window, text="Save Changes", command=save_changes,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
 def delete_item():
@@ -405,8 +440,10 @@ def save_user_data():
     username = username_label.cget("text") if 'username_label' in globals() else "default_user"
     with open(f"{username}_data.csv", "w", newline='') as file:
         for item in sample_data:
+
             file.write(f"{item['id']},{item['name']},{item['description']},{item.get('albumtitle','')},{item.get('genre','')},{item.get('releasedate','')},{item.get('image_path','')}\n")
             
+
 ascending_name = True
 ascending_date = True
 ascending_album = True
@@ -468,6 +505,7 @@ style.configure("Treeview.Heading", background=brown, foreground=peach, relief="
 style.map("Treeview", background=[("selected", maroon)], foreground=[("selected", peach)])
 style.map("Treeview.Heading", background=[("pressed", maroon)], foreground=[("pressed", peach)])
 
+
 tree = ttk.Treeview(root, columns=("Name","Date","Album"), show="headings")
 tree.heading("Name", text="Name", command=on_name_click)
 tree.heading("Date", text="Date", command=on_date_click)
@@ -475,7 +513,6 @@ tree.heading("Album", text="Album", command=on_album_click)
 tree.column("Name", width=200)
 tree.column("Date", width=120)
 tree.column("Album", width=180)
-
 
 tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
 
@@ -500,6 +537,7 @@ def show_tipbox(event):
 
 tree.bind("<Motion>", show_tipbox)
 
+
 ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
@@ -511,3 +549,4 @@ ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_co
 
 refresh_tree()
 root.mainloop()
+

@@ -1,0 +1,39 @@
+name: Build EXE with PyInstaller
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --onefile --windowed --name "CatalogManagementSystem" --add-data "back.py;." --add-data "register.csv;." --add-data "test.csv;." front_end.py
+
+      - name: Copy test.csv to build directory
+        run: copy test.csv dist\
+
+      - name: Upload Executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: CatalogManagementSystem
+          path: dist/
