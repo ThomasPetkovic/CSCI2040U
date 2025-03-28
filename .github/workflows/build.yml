@@ -30,7 +30,7 @@ jobs:
           pyinstaller --onefile --windowed --name "CatalogManagementSystem" --add-data "back.py;." --add-data "*.csv;." front_end.py
 
       - name: Copy all CSV files to build directory
-        run: for %f in (*.csv) do copy %f dist\
+        run: for %%f in (*.csv) do copy "%%f" dist\
 
       - name: Upload Executable
         uses: actions/upload-artifact@v4
