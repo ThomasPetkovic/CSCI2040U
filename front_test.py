@@ -50,25 +50,28 @@ def mock_sample_data():
         {"id": "2", "name": "Song B", "description": "Second song", "releasedate": "2022", "albumtitle": "Album Y"},
     ]
 
-@patch.object(messagebox, "showwarning")
-@patch.object(messagebox, "showinfo")
-@patch.object(messagebox, "showerror")
-def test_search_item(mock_showerror, mock_showinfo, mock_showwarning, mock_sample_data, monkeypatch):
+@patch("front_end.messagebox.showerror")
+def test_search_item(mock_showerror, mock_sample_data, monkeypatch):
     global sample_data, tree
     sample_data = mock_sample_data
     tree = type("MockTree", (), {"get_children": lambda: [], "delete": lambda x: None, "insert": lambda *args: None})()
     
+    # Mock the search_entry widget
     class MockEntry:
         def __init__(self, text):
             self.text = text
         def get(self):
             return self.text
     
+    # Test case: Search for an existing item
     monkeypatch.setattr("front_end.search_entry", MockEntry("Song A"))
     search_item()
     
+    # Test case: Search for a non-existent item
     monkeypatch.setattr("front_end.search_entry", MockEntry("Nonexistent"))
-
-    search_item()  # Should result in an error message
+    search_item()
+    
+    # Ensure an error message is shown for the non-existent item
+    mock_showerror.assert_called_once_with("ERROR", "No matching search results.")
 
 
