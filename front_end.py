@@ -6,8 +6,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import os
 
-#colors
 
+#colors
 peach = "#FFE5B4"
 dark_peach = "#FFE5D9"
 light_peach = "#FDEEEB"
