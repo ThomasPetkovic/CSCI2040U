@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch, mock_open
-from front_end import validate_register, validate_login, validate_inputs, search_item, is_username_taken, lyrical_preview
+from front_end import validate_register, validate_login, validate_inputs, search_item, is_username_taken
 
 from tkinter import messagebox
 
