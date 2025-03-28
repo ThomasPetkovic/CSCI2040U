@@ -30,7 +30,10 @@ current_user = {
 ctk.set_appearance_mode(maroon)
 ctk.set_default_color_theme("blue") #temporary
 
-
+# Check if running in pytest
+if "PYTEST_CURRENT_TEST" in os.environ:
+    # Prevent GUI from launching during tests
+    exit()
 
 # Check if running in GitHub Actions
 GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
@@ -499,86 +502,86 @@ def refresh_tree():
         tree.insert("", "end", values=(item["name"], item.get("releasedate",""), item.get("albumtitle","")))
     back.rewrite_csv(sample_data)
 
-
-root = ctk.CTk()
-root.title("Catalog Management System")
-root.geometry("1300x700")
-root.configure(fg_color=light_maroon, bg_color=peach) 
-
-
-
-search_frame = ctk.CTkFrame(root)
-search_frame.pack(side=TOP, padx=10, pady=5)
-
-root.lower()
-root.attributes("-topmost", False)
+if __name__ == "__main__":
+    root = ctk.CTk()
+    root.title("Catalog Management System")
+    root.geometry("1300x700")
+    root.configure(fg_color=light_maroon, bg_color=peach) 
 
 
-search_entry = ctk.CTkEntry(search_frame, width=130)
-search_entry.insert(0, "Search for an item...")
-search_entry.pack(side=LEFT)
 
-search_button = ctk.CTkButton(search_frame, text="Search 🔍", command=search_item, fg_color=maroon,bg_color=peach, hover_color=brown)
-def clear_placeholder(event):
-    if search_entry.get() == "Search for an item...":
-        search_entry.delete(0, END)
+    search_frame = ctk.CTkFrame(root)
+    search_frame.pack(side=TOP, padx=10, pady=5)
 
-search_entry.bind("<FocusIn>", clear_placeholder)
+    root.lower()
+    root.attributes("-topmost", False)
 
 
-search_button = ctk.CTkButton(search_frame, text="Search", command=search_item, fg_color=maroon,bg_color=peach, hover_color=dark_maroon)
-search_button.pack(side=LEFT, padx=0)
+    search_entry = ctk.CTkEntry(search_frame, width=130)
+    search_entry.insert(0, "Search for an item...")
+    search_entry.pack(side=LEFT)
 
-style = ttk.Style()
-style.theme_use("clam")
+    search_button = ctk.CTkButton(search_frame, text="Search 🔍", command=search_item, fg_color=maroon,bg_color=peach, hover_color=brown)
+    def clear_placeholder(event):
+        if search_entry.get() == "Search for an item...":
+            search_entry.delete(0, END)
 
-style.configure("Treeview", foreground="black", background=peach, rowheight=25, fieldbackground=peach)
-style.configure("Treeview.Heading", background=brown, foreground=peach, relief="flat")
-style.map("Treeview", background=[("selected", maroon)], foreground=[("selected", peach)])
-style.map("Treeview.Heading", background=[("pressed", maroon)], foreground=[("pressed", peach)])
-
-
-tree = ttk.Treeview(root, columns=("Name","Date","Album"), show="headings")
-tree.heading("Name", text="Name", command=on_name_click)
-tree.heading("Date", text="Date", command=on_date_click)
-tree.heading("Album", text="Album", command=on_album_click)
-tree.column("Name", width=200)
-tree.column("Date", width=120)
-tree.column("Album", width=180)
-
-tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
-
-# Hover functionality to show a tipbox when hovering over an item
-tipbox = None
-
-def show_tipbox(event):
-    global tipbox
-    if tipbox:
-        tipbox.destroy()
-    item = tree.identify_row(event.y)
-    if item:
-        row_values = tree.item(item, "values")
-        if row_values:
-            tipbox = Toplevel(root)
-            tipbox.geometry("300x100")
-            tipbox.overrideredirect(True)
-            tipbox.wm_attributes("-topmost", 1)
-            Label(tipbox, text=f"Name: {row_values[0]}\nDate: {row_values[1]}\nAlbum: {row_values[2]}").pack(pady=5)
-            tipbox.geometry(f"+{event.x_root+2}+{event.y_root+2}")
-            tipbox.after(2000, tipbox.destroy)
-
-tree.bind("<Motion>", show_tipbox)
+    search_entry.bind("<FocusIn>", clear_placeholder)
 
 
-ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Delete Item 🗑️", command=delete_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Register 📝", command=register,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Login 🔓", command=login,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    search_button = ctk.CTkButton(search_frame, text="Search", command=search_item, fg_color=maroon,bg_color=peach, hover_color=dark_maroon)
+    search_button.pack(side=LEFT, padx=0)
+
+    style = ttk.Style()
+    style.theme_use("clam")
+
+    style.configure("Treeview", foreground="black", background=peach, rowheight=25, fieldbackground=peach)
+    style.configure("Treeview.Heading", background=brown, foreground=peach, relief="flat")
+    style.map("Treeview", background=[("selected", maroon)], foreground=[("selected", peach)])
+    style.map("Treeview.Heading", background=[("pressed", maroon)], foreground=[("pressed", peach)])
 
 
-refresh_tree()
-root.mainloop()
+    tree = ttk.Treeview(root, columns=("Name","Date","Album"), show="headings")
+    tree.heading("Name", text="Name", command=on_name_click)
+    tree.heading("Date", text="Date", command=on_date_click)
+    tree.heading("Album", text="Album", command=on_album_click)
+    tree.column("Name", width=200)
+    tree.column("Date", width=120)
+    tree.column("Album", width=180)
+
+    tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
+
+    # Hover functionality to show a tipbox when hovering over an item
+    tipbox = None
+
+    def show_tipbox(event):
+        global tipbox
+        if tipbox:
+            tipbox.destroy()
+        item = tree.identify_row(event.y)
+        if item:
+            row_values = tree.item(item, "values")
+            if row_values:
+                tipbox = Toplevel(root)
+                tipbox.geometry("300x100")
+                tipbox.overrideredirect(True)
+                tipbox.wm_attributes("-topmost", 1)
+                Label(tipbox, text=f"Name: {row_values[0]}\nDate: {row_values[1]}\nAlbum: {row_values[2]}").pack(pady=5)
+                tipbox.geometry(f"+{event.x_root+2}+{event.y_root+2}")
+                tipbox.after(2000, tipbox.destroy)
+
+    tree.bind("<Motion>", show_tipbox)
+
+
+    ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Delete Item 🗑️", command=delete_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Register 📝", command=register,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Login 🔓", command=login,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
+
+    refresh_tree()
+    root.mainloop()
 
