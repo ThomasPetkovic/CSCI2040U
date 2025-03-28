@@ -18,6 +18,12 @@ text = "#4B0A12"
 brown = "#8f4535"
 hover_maroon = "#9A1B1F"
 
+# Current user dictionary to store username and permission
+current_user = {
+    "username": None,
+    "permission": None
+}
+
 
 # Appearance
 
@@ -34,6 +40,15 @@ if GITHUB_ACTIONS:
     tkinter.Tk().withdraw()  # Prevent GUI from launching
 
 
+def admin_login():
+    return current_user["username"] == "admin" and current_user["permission"] == "admin"
+
+def user_login():
+    if not admin_login():
+        messagebox.showwarning("Error", "You are not logged in as admin.")
+        return False
+    return True
+       
 
 def load_data_from_csv():
     return back.initial_read()
@@ -70,6 +85,9 @@ def show_item_details(item):
 
     
     def upload_image():
+        if not user_login():
+            return
+        messagebox.showinfo("Uploading Image", "Admin is uploading image")
         path = filedialog.askopenfilename(
             filetypes=[("Image Files", "*.jpg *.jpeg *.png *.img")]
         )
@@ -166,6 +184,18 @@ def login():
     def check_login():
         username = username_entry.get()
         password = password_entry.get()
+
+        if username == "admin" and password == "admin":
+            permission = "admin"
+        else:
+            permission = "user"
+
+        current_user["username"] = username
+        current_user["permission"] = permission
+
+    
+        messagebox.showinfo("Success", f"Login Successful as {permission}")
+        display_username(username, permission)
         if validate_login(username, password):
             try:
                 with open("register.csv", "r") as file:
@@ -190,12 +220,12 @@ def validate_login(username, password):
         return False
     return True
 
-def display_username(username):
+def display_username(username, permission):
     global username_label
     if 'username_label' in globals():
         username_label.destroy()
 
-    username_label = ctk.CTkLabel(root, text=username, text_color=maroon)
+    username_label = ctk.CTkLabel(root, text=f"{username} ({permission})", text_color=maroon)
 
     username_label.pack(side=RIGHT, padx=10, pady=10)
 
@@ -214,23 +244,15 @@ def load_user_data(username):
         refresh_tree()
 
 def logout():
-    logout_window = ctk.CTkToplevel(root)
-    logout_window.title("Logout")
-    logout_window.geometry("300x300")
-    ctk.CTkLabel(logout_window, text="Are you sure you want to logout?",text_color=text).pack(pady=5)
+    global username_label
+    if 'username_label' in globals():
+        username_label.destroy()
+    
+    current_user["username"] = None
+    current_user["permission"] = None
 
-    def confirm_logout():
-        global sample_data
-        logout_window.destroy()
-        if 'username_label' in globals() and username_label:
-            username_label.destroy()
-        messagebox.showinfo("Success", "Logout Successful")
-
-        sample_data = load_data_from_csv()
-        refresh_tree()
-    ctk.CTkButton(logout_window, text="Yes", command=confirm_logout,fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
-    ctk.CTkButton(logout_window, text="No", command=logout_window.destroy,fg_color=light_maroon, hover_color=dark_peach).pack(pady=5)
-
+    messagebox.showinfo("Success", "Logout Successful")
+   
 def search_item():
     entry = search_entry.get().strip().lower()
     if not entry:
@@ -416,6 +438,10 @@ def edit_item():
     ctk.CTkButton(edit_window, text="Save Changes", command=save_changes,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
 def delete_item():
+    if not user_login():
+        return
+    messagebox.showinfo("Deleting Item", "Admin is deleting item")
+    
     selected = tree.selection()
     if not selected:
         messagebox.showwarning("Error", "Please select an item to delete.")
@@ -476,11 +502,17 @@ def refresh_tree():
 
 root = ctk.CTk()
 root.title("Catalog Management System")
-root.geometry("1200x700")
+root.geometry("1300x700")
 root.configure(fg_color=light_maroon, bg_color=peach) 
+
+
 
 search_frame = ctk.CTkFrame(root)
 search_frame.pack(side=TOP, padx=10, pady=5)
+
+root.lower()
+root.attributes("-topmost", False)
+
 
 search_entry = ctk.CTkEntry(search_frame, width=130)
 search_entry.insert(0, "Search for an item...")
