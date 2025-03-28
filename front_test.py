@@ -51,6 +51,7 @@ def mock_sample_data():
     ]
 
 @patch("front_end.messagebox.showerror")
+@patch("front_end.messagebox.showerror")
 def test_search_item(mock_showerror, mock_sample_data, monkeypatch):
     global sample_data, tree
     sample_data = mock_sample_data
@@ -63,8 +64,10 @@ def test_search_item(mock_showerror, mock_sample_data, monkeypatch):
         def get(self):
             return self.text
     
-    # Test case: Search for an existing item
+    # Mock the search_entry in the front_end module
     monkeypatch.setattr("front_end.search_entry", MockEntry("Song A"))
+    
+    # Test case: Search for an existing item
     search_item()
     
     # Test case: Search for a non-existent item
@@ -73,5 +76,3 @@ def test_search_item(mock_showerror, mock_sample_data, monkeypatch):
     
     # Ensure an error message is shown for the non-existent item
     mock_showerror.assert_called_once_with("ERROR", "No matching search results.")
-
-
