@@ -275,8 +275,12 @@ def preview_lyrics(item):
 
     lyrics_list = back.get_lyrics(item)
     lyrics_text = "\n".join(lyrics_list)
-    text_widget = ctk.CTkTextbox(preview_window, text_color=peach, wrap="word")
+    text_widget = ctk.CTkTextbox(preview_window, text_color=peach, wrap="word",font=("Seoge UI",12))
     text_widget.insert("1.0", lyrics_text)
+
+    text_widget.tag_config("center",justify="center")
+    text_widget.tag_add("center","1.0","end")
+
     text_widget.configure(state="disabled")
     text_widget.pack(fill=BOTH, expand=True, padx=10, pady=10)
 
