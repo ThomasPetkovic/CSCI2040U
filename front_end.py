@@ -266,6 +266,7 @@ def search_item():
     else:
         for it in found:
             tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
+    return found
 
 def preview_lyrics(item):
     preview_window = ctk.CTkToplevel(root)
