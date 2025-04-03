@@ -6,6 +6,10 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import os
 
+# notetoself chamge edit perms to be admin only, change admin to not say invalid
+
+
+
 #colors
 
 peach = "#FFE5B4"
@@ -87,7 +91,7 @@ def show_item_details(item):
     def upload_image():
         if not user_login():
             return
-        messagebox.showinfo("Uploading Image", "Admin is uploading image")
+        messagebox.showinfo("Uploading Image", "Choose an image to upload")
         path = filedialog.askopenfilename(
             filetypes=[("Image Files", "*.jpg *.jpeg *.png *.img")]
         )
@@ -201,13 +205,13 @@ def login():
                 with open("register.csv", "r") as file:
                     for line in file:
                         line = line.strip()
-                        if line == f"{username},{password}":
+                        if line == f"{username},{password}" or (username == "admin" and password == "admin"):
                             login_window.destroy()
                             messagebox.showinfo("Success", "Login Successful")
-                            display_username(username)
+                            display_username(username, permission)
                             load_user_data(username)
                             return
-                messagebox.showwarning("Error", "Invalid username or password")
+                    messagebox.showwarning("Error", "Invalid username or password")
             except FileNotFoundError:
                 messagebox.showwarning("Error", "No users registered yet.")
 
@@ -372,6 +376,9 @@ def validate_inputs(id_, name_, description_):
     return True
 
 def edit_item():
+    if not user_login():
+        return
+    messagebox.showinfo("Editing Item", "Edit item")
     selected = tree.selection()
     if not selected:
         messagebox.showwarning("Error", "Please select an item to edit.")
@@ -440,7 +447,7 @@ def edit_item():
 def delete_item():
     if not user_login():
         return
-    messagebox.showinfo("Deleting Item", "Admin is deleting item")
+    messagebox.showinfo("Deleting Item", "Deleted item")
     
     selected = tree.selection()
     if not selected:
@@ -571,11 +578,18 @@ tree.bind("<Motion>", show_tipbox)
 
 
 ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
 ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
+
 ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
 ctk.CTkButton(root, text="Delete Item 🗑️", command=delete_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
 ctk.CTkButton(root, text="Register 📝", command=register,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
 ctk.CTkButton(root, text="Login 🔓", command=login,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
 ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
 
