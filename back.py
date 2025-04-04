@@ -32,33 +32,50 @@ def rewrite_csv(list):
 
 rewrite_csv(list)
 
-def get_lyrics(item):
-    lyrics_list = []
-
-    lyrics_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"song_lyrics")
-    test_path = os.path.join(lyrics_dir,item['name'] + ".txt")
-
-    if not os.path.exists(test_path):
-        file = item['name'] + ".txt"
-        file_path = os.path.join(lyrics_dir,file)
-        genius = lyricsgenius.Genius('ogwCLyB6vLx_aWgYvR1ZOgVyGOMAd_KUPrGmUmc8K1PpgcsC17h3TQH7OZer4bzW')
+def get_song(item):
+        genius = lyricsgenius.Genius('26r3qCegkDDdjAs4Fv1aZNXyo1ildgMvLDfNkCsd83AkIdMgDF-ep6BE66lVHdge')
 
         artist = item['description']; 
         artist = artist[3:]
         genius_artist = genius.search_artist(artist, max_songs=0, sort="title")
         song = genius_artist.song(item['name'])
-            
-        with open(file_path,"w") as lyrics:
+
+        return song
+
+def get_lyrics(item):
+    lyrics_list = []
+
+    lyrics_dir = os.path.join(os.getcwd(),"song_lyrics")
+    if not os.path.exists(lyrics_dir):
+        os.makedirs(lyrics_dir)
+
+    test_path = os.path.join(lyrics_dir,item['name'] + ".txt")
+
+    if not os.path.exists(test_path):
+        song = get_song(item)
+        file = (item['name'] + ".txt")
+        file_path = os.path.join(lyrics_dir,file)
+        
+        with open(file_path,"w",errors='replace') as lyrics:
             lyrics.write(song.lyrics)
         
         read_lyrics(lyrics_list, file_path)
     
     elif os.path.exists(test_path):
         read_lyrics(lyrics_list,test_path)
-
+    
     return lyrics_list
 
+
 def read_lyrics(lyrics_list, file_path):
+    read = False
+
     with open(file_path, "r") as lyrics:
         for line in lyrics:
-            lyrics_list.append(line.strip())
+            if "[Intro]" in line:
+                read = True
+                lyrics_list.append("[Intro]")
+                continue
+            if read:
+                lyrics_list.append(line.strip())
+                
