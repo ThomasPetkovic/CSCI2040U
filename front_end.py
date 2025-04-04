@@ -238,13 +238,7 @@ def logout():
     current_user["permission"] = None
     messagebox.showinfo("Success", "Logout Successful")
 
-def search_item():
-    entry = search_entry.get().strip().lower()
-    if not entry:
-        refresh_tree()
-        return
-    for child in tree.get_children():
-        tree.delete(child)
+def search_item(entry):
     found = []
     for item in sample_data:
         if item["name"].lower().startswith(entry):
@@ -258,7 +252,18 @@ def search_item():
         if item.get("description","").lower().startswith(entry):
             found.append(item)
         if item["id"].lower().startswith(entry):
-            found
+            found.append(item)
+    return found,entry
+
+def display_search():
+    found,entry = search_item(search_entry.get().strip().lower())
+
+    if not entry:
+        refresh_tree()
+        return
+
+    for child in tree.get_children():
+        tree.delete(child)
 
     if not found:
         messagebox.showerror("ERROR", "No matching search results.")
@@ -266,7 +271,7 @@ def search_item():
     else:
         for it in found:
             tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
-    return found
+
 
 def preview_lyrics(item):
     preview_window = ctk.CTkToplevel(root)
@@ -500,7 +505,7 @@ def clear_placeholder(event):
 
 search_entry.bind("<FocusIn>", clear_placeholder)
 
-search_button = ctk.CTkButton(search_frame,text="Search",command=search_item,fg_color=maroon,bg_color=peach,hover_color=dark_maroon,corner_radius=15,border_width=0,text_color=peach)
+search_button = ctk.CTkButton(search_frame,text="Search",command=display_search,fg_color=maroon,bg_color=peach,hover_color=dark_maroon,corner_radius=15,border_width=0,text_color=peach)
 search_button.pack(side=LEFT, padx=5, pady=5)
 
 
