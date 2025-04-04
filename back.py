@@ -33,7 +33,7 @@ def rewrite_csv(list):
 rewrite_csv(list)
 
 def get_song(item):
-        genius = lyricsgenius.Genius('ogwCLyB6vLx_aWgYvR1ZOgVyGOMAd_KUPrGmUmc8K1PpgcsC17h3TQH7OZer4bzW')
+        genius = lyricsgenius.Genius('26r3qCegkDDdjAs4Fv1aZNXyo1ildgMvLDfNkCsd83AkIdMgDF-ep6BE66lVHdge')
 
         artist = item['description']; 
         artist = artist[3:]
