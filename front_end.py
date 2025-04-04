@@ -51,6 +51,7 @@ def admin_login():
 
 def user_login():
     if not admin_login():
+        
         messagebox.showwarning("Error", "You are not logged in as admin.")
         return False
     return True
@@ -100,8 +101,8 @@ def show_item_details(item):
         if path:
             item["image_path"] = path
             load_image(path)
-
-    ctk.CTkButton(details_window, text="Upload Image", command=upload_image,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
+    if admin_login():
+        ctk.CTkButton(details_window, text="Upload Image", command=upload_image,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
 def view_details():
     selected = tree.selection()
@@ -198,6 +199,7 @@ def login():
 
         current_user["username"] = username
         current_user["permission"] = permission
+        reset_buttons()
 
     
         messagebox.showinfo("Success", f"Login Successful as {permission}")
@@ -230,6 +232,7 @@ def display_username(username, permission):
     global username_label
     if 'username_label' in globals():
         username_label.destroy()
+        
 
     username_label = ctk.CTkLabel(root, text=f"{username} ({permission})", text_color=maroon)
 
@@ -258,6 +261,8 @@ def logout():
     current_user["permission"] = None
 
     messagebox.showinfo("Success", "Logout Successful")
+    reset_buttons()
+    
    
 def search_item():
     entry = search_entry.get().strip().lower()
@@ -508,7 +513,35 @@ def refresh_tree():
         tree.insert("", "end", values=(item["name"], item.get("releasedate",""), item.get("albumtitle","")))
     back.rewrite_csv(sample_data)
 
-if __name__ == "__main__":
+    # Hover functionality to show a tipbox when hovering over an item
+    tipbox = None
+
+    def show_tipbox(event):
+        nonlocal tipbox
+        if tipbox:
+            tipbox.destroy()
+        item = tree.identify_row(event.y)
+        if item:
+            row_values = tree.item(item, "values")
+            if row_values:
+                tipbox = Toplevel(root)
+                tipbox.geometry("300x100")
+                tipbox.overrideredirect(True)
+                tipbox.wm_attributes("-topmost", 1)
+                Label(tipbox, text=f"Name: {row_values[0]}\nDate: {row_values[1]}\nAlbum: {row_values[2]}").pack(pady=5)
+                tipbox.geometry(f"+{event.x_root+2}+{event.y_root+2}")
+                tipbox.after(2000, tipbox.destroy)
+
+    tree.bind("<Motion>", show_tipbox)
+
+def reset_buttons():
+    root.destroy()
+    main()
+    display_username(current_user["username"], current_user["permission"])
+    refresh_tree()
+
+def main():
+    global root, tree, search_entry, username_label
     root = ctk.CTk()
     root.title("Catalog Management System")
     root.geometry("1300x700")
@@ -557,44 +590,33 @@ if __name__ == "__main__":
 
     tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
 
-    # Hover functionality to show a tipbox when hovering over an item
-    tipbox = None
-
-    def show_tipbox(event):
-        global tipbox
-        if tipbox:
-            tipbox.destroy()
-        item = tree.identify_row(event.y)
-        if item:
-            row_values = tree.item(item, "values")
-            if row_values:
-                tipbox = Toplevel(root)
-                tipbox.geometry("300x100")
-                tipbox.overrideredirect(True)
-                tipbox.wm_attributes("-topmost", 1)
-                Label(tipbox, text=f"Name: {row_values[0]}\nDate: {row_values[1]}\nAlbum: {row_values[2]}").pack(pady=5)
-                tipbox.geometry(f"+{event.x_root+2}+{event.y_root+2}")
-                tipbox.after(2000, tipbox.destroy)
-
-    tree.bind("<Motion>", show_tipbox)
 
 
-ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
-ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
+    if current_user["username"] == "admin" and current_user["permission"] == "admin":
+
+        ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+
+        ctk.CTkButton(root, text="Delete Item 🗑️", command=delete_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+        display_username(current_user["username"], current_user["permission"])
 
 
-ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
-ctk.CTkButton(root, text="Delete Item 🗑️", command=delete_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
-ctk.CTkButton(root, text="Register 📝", command=register,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Register 📝", command=register,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
-ctk.CTkButton(root, text="Login 🔓", command=login,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Login 🔓", command=login,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
-ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
+    ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
 
     refresh_tree()
     root.mainloop()
+
+if __name__ == "__main__":
+    main()
+   
 
