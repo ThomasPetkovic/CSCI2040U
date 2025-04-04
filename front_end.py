@@ -66,7 +66,7 @@ def show_item_details(item):
 
     details_window = ctk.CTkToplevel(root)
     details_window.title("Item Details")
-    details_window.geometry("300x400")
+    details_window.geometry("300x600")
     ctk.CTkLabel(details_window, text=f"ID: {item['id']}", text_color=peach).pack(pady=5)
     ctk.CTkLabel(details_window, text=f"Name: {item['name']}",text_color=peach).pack(pady=5)
     ctk.CTkLabel(details_window, text=f"Description: {item['description']}",text_color=peach).pack(pady=5)
@@ -80,7 +80,7 @@ def show_item_details(item):
     def load_image(path):
         try:
             img = Image.open(path)
-            img = img.resize((100, 100))
+            img = img.resize((300, 300))
             photo = ImageTk.PhotoImage(img)
             image_display.configure(image=photo)
             image_display.image = photo
@@ -323,7 +323,7 @@ def preview_lyrics(item):
 def add_item():
     add_window = ctk.CTkToplevel(root)
     add_window.title("Add Item")
-    add_window.geometry("400x500")
+    add_window.geometry("400x600")
     ctk.CTkLabel(add_window, text="ID:",text_color=peach).pack(pady=5)
     id_entry = ctk.CTkEntry(add_window)
     id_entry.pack(pady=5)
@@ -341,8 +341,21 @@ def add_item():
     genre_entry.pack(pady=5)
     ctk.CTkLabel(add_window, text="Release Date:",text_color=peach).pack(pady=5)
     release_date_entry = ctk.CTkEntry(add_window)
-
     release_date_entry.pack(pady=5)
+
+    ctk.CTkLabel(add_window, text="Image Path:", text_color=peach).pack(pady=5)
+    image_path_entry = ctk.CTkEntry(add_window)
+    image_path_entry.pack(pady=5)
+
+    def browse_image():
+        path = filedialog.askopenfilename(filetypes=[("Image Files", "*.jpg *.jpeg *.png *.img")])
+        if path:
+            image_path_entry.delete(0, "end")
+            image_path_entry.insert(0, path)
+
+    ctk.CTkButton(add_window, text="Browse Image", command=browse_image,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
+
+    
     def save_item():
         id_ = id_entry.get().strip()
         name_ = name_entry.get().strip()
@@ -350,6 +363,7 @@ def add_item():
         albumtitle = album_title_entry.get().strip()
         genre = genre_entry.get().strip()
         releasedate = release_date_entry.get().strip()
+        image = image_path_entry.get().strip()
         if validate_inputs(id_, name_, desc_):
             new_item = {
                 "id": id_,
@@ -357,7 +371,8 @@ def add_item():
                 "description": desc_,
                 "albumtitle": albumtitle,
                 "genre": genre,
-                "releasedate": releasedate
+                "releasedate": releasedate,
+                "image_path": image
             }
             sample_data.append(new_item)
             refresh_tree()
