@@ -78,4 +78,4 @@ def read_lyrics(lyrics_list, file_path):
                 continue
             if read:
                 lyrics_list.append(line.strip())
-                
+
