@@ -574,8 +574,6 @@ def main():
     search_button = ctk.CTkButton(search_frame,text="Search",command=display_search,fg_color=maroon,bg_color=peach,hover_color=dark_maroon,corner_radius=15,border_width=0,text_color=peach)
     search_button.pack(side=LEFT, padx=5, pady=5)
 
-    # search_button = ctk.CTkButton(search_frame, text="Search", command=search_item, fg_color=maroon,bg_color=peach, hover_color=dark_maroon)
-    # search_button.pack(side=LEFT, padx=0)
 
     style = ttk.Style()
     style.theme_use("clam")

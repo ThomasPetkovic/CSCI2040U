@@ -45,7 +45,10 @@ def get_song(item):
 def get_lyrics(item):
     lyrics_list = []
 
-    lyrics_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"song_lyrics")
+    lyrics_dir = os.path.join(os.getcwd(),"song_lyrics")
+    if not os.path.exists(lyrics_dir):
+        os.makedirs(lyrics_dir)
+
     test_path = os.path.join(lyrics_dir,item['name'] + ".txt")
 
     if not os.path.exists(test_path):
@@ -75,3 +78,4 @@ def read_lyrics(lyrics_list, file_path):
                 continue
             if read:
                 lyrics_list.append(line.strip())
+
