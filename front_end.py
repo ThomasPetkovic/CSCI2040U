@@ -1,16 +1,12 @@
 from tkinter import *
 from tkinter import messagebox,ttk
 import customtkinter as ctk
-import back
+import back             #Import backed functions that we wrote in the other file.
 from tkinter import filedialog
 from PIL import Image, ImageTk
 import os
 
-# notetoself chamge edit perms to be admin only, change admin to not say invalid
-
-
-
-# colors
+# Theme colors for UI
 peach = "#FFE5B4"
 dark_peach = "#FFE5D9"
 light_peach = "#FDEEEB"
@@ -29,17 +25,18 @@ current_user = {
 
 # Appearance
 ctk.set_appearance_mode(maroon)
-ctk.set_default_color_theme("blue")# Check if running in pytest
+ctk.set_default_color_theme("blue")
 if "PYTEST_CURRENT_TEST" in os.environ:
-    # Prevent GUI from launching during tests
-    exit()
+    exit()              #Prevent GUI from launching during tests
 
-# Check if running in GitHub Actions
+#Check if running in GitHub Actions
 GITHUB_ACTIONS = os.getenv("GITHUB_ACTIONS") == "true"
 if GITHUB_ACTIONS:
     import tkinter
-    tkinter.Tk().withdraw()  # Prevent GUI from launching
+    tkinter.Tk().withdraw()             #Prevent GUI from launching
 
+
+#Admin permission check
 def admin_login():
     return current_user["username"] == "admin" and current_user["permission"] == "admin"
 
@@ -50,11 +47,14 @@ def user_login():
         return False
     return True
 
+
+#Load initial data from csv using back-end function
 def load_data_from_csv():
     return back.initial_read()
 
 sample_data = load_data_from_csv()
 
+#Show song details in a separate window
 def show_item_details(item):
     details_window = ctk.CTkToplevel(root)
     details_window.title("Item Details")
@@ -64,6 +64,7 @@ def show_item_details(item):
     ctk.CTkLabel(details_window, text=f"Description: {item['description']}", text_color=peach).pack(pady=5)
     ctk.CTkLabel(details_window, text=f"Image: {item.get('albumtitle','')}", text_color=peach).pack(pady=5)
 
+    #Button to preview lyrics
     ctk.CTkButton(
         details_window,
         text="Preview Lyrics",
@@ -75,6 +76,7 @@ def show_item_details(item):
     image_display = ctk.CTkLabel(details_window, text="")
     image_display.pack(pady=5)
 
+    #Load and display an image of song if available
     def load_image(path):
         try:
             img = Image.open(path)
@@ -88,6 +90,7 @@ def show_item_details(item):
     if "image_path" in item and item["image_path"]:
         load_image(item["image_path"])
 
+    #Allow admin to upload a new image for song
     def upload_image():
         if not user_login():
             return
@@ -101,6 +104,7 @@ def show_item_details(item):
     if admin_login():
         ctk.CTkButton(details_window, text="Upload Image", command=upload_image,fg_color=maroon, hover_color=hover_maroon).pack(pady=5)
 
+#View details for the selected song from the tree view
 def view_details():
     selected = tree.selection()
     if not selected:
@@ -124,6 +128,7 @@ def view_details():
     else:
         show_item_details(found_item)
 
+#Registration window for new users
 def register():
     register_window = ctk.CTkToplevel(root)
     register_window.title("Register")
@@ -135,6 +140,7 @@ def register():
     password_entry = ctk.CTkEntry(register_window, show="*")
     password_entry.pack(pady=5)
 
+    #Save the new registration to a file.
     def save_register():
         username = username_entry.get()
         password = password_entry.get()
@@ -149,12 +155,15 @@ def register():
 
     ctk.CTkButton(register_window,text="Register",command=save_register,fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
 
+
+#Basic validation for registration inputs
 def validate_register(username, password):
     if not username or not password:
         messagebox.showwarning("Input Error", "Please enter both username and password.")
         return False
     return True
 
+#Check if the username already exists in the registration file
 def is_username_taken(username):
     try:
         with open("register.csv", "r") as file:
@@ -168,6 +177,8 @@ def is_username_taken(username):
         pass
     return False
 
+
+#Login window UI and login function to let someone login successfully.
 def login():
     login_window = ctk.CTkToplevel(root)
     login_window.title("Login")
@@ -212,21 +223,25 @@ def login():
 
     ctk.CTkButton(login_window,text="Login",command=check_login,fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
 
+
+# Validate login inputs
 def validate_login(username, password):
     if not username or not password:
         messagebox.showwarning("Input Error", "Please enter both username and password.")
         return False
     return True
 
+#Display the current logged in user's info on the main window
 def display_username(username, permission):
     global username_label
     if 'username_label' in globals():
         username_label.destroy()
-        
 
     username_label = ctk.CTkLabel(root, text=f"{username} ({permission})", text_color=maroon)
     username_label.pack(side=RIGHT, padx=10, pady=10)
 
+
+#Load user data from a cvsv file
 def load_user_data(username):
     global sample_data
     try:
@@ -239,6 +254,8 @@ def load_user_data(username):
     except FileNotFoundError:
         refresh_tree()
 
+
+#Logout and clearing the current user info
 def logout():
     global username_label
     if 'username_label' in globals():
@@ -249,7 +266,7 @@ def logout():
     messagebox.showinfo("Success", "Logout Successful")
     reset_buttons()
     
-   
+#Start song search and update UI element
 def search_item():
     entry = search_entry.get().strip().lower()
     if not entry:
@@ -258,6 +275,7 @@ def search_item():
     for child in tree.get_children():
         tree.delete(child)
 
+#Perform search throuch current data
 def search_item(entry):
     found = []
     for item in sample_data:
@@ -275,6 +293,7 @@ def search_item(entry):
             found.append(item)
     return found,entry
 
+#Display search results and show an error if nothing match
 def display_search():
     found,entry = search_item(search_entry.get().strip().lower())
 
@@ -293,6 +312,7 @@ def display_search():
             tree.insert("", "end", values=(it["name"], it.get("releasedate",""), it.get("albumtitle","")))
 
 
+#Preview lyrics in a new window using backend function to get lyrics
 def preview_lyrics(item):
     preview_window = ctk.CTkToplevel(root)
     preview_window.title("Lyrics Preview")
@@ -310,6 +330,8 @@ def preview_lyrics(item):
     text_widget.configure(state="disabled")
     text_widget.pack(fill=BOTH, expand=True, padx=10, pady=10)
 
+
+#Add a new song to the catalog
 def add_item():
     add_window = ctk.CTkToplevel(root)
     add_window.title("Add Item")
@@ -337,6 +359,7 @@ def add_item():
     image_path_entry = ctk.CTkEntry(add_window)
     image_path_entry.pack(pady=5)
 
+    #Let the user find the image for the song.
     def browse_image():
         path = filedialog.askopenfilename(filetypes=[("Image Files", "*.jpg *.jpeg *.png *.img")])
         if path:
@@ -371,6 +394,8 @@ def add_item():
 
     ctk.CTkButton(add_window,text="Add Item",command=save_item,fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
 
+
+#See that all new song inputs have required fields and numeric ID
 def validate_inputs(id_, name_, description_):
     if not (id_ and name_ and description_):
         messagebox.showwarning("Input Error", "Please enter ID, Name, and Description.")
@@ -384,6 +409,8 @@ def validate_inputs(id_, name_, description_):
             return False
     return True
 
+
+#Edit existing song details (only allowed for admin)
 def edit_item():
     if not user_login():
         return
@@ -437,6 +464,7 @@ def edit_item():
     release_date_entry.insert(0, item.get("releasedate",""))
     release_date_entry.pack(pady=5)
 
+    #Save the required changes to file by stripping and adding them
     def save_changes():
         new_id = id_entry.get().strip()
         new_name = name_entry.get().strip()
@@ -457,6 +485,8 @@ def edit_item():
 
     ctk.CTkButton(edit_window,text="Save Changes",command=save_changes,fg_color=maroon,hover_color=hover_maroon).pack(pady=5)
 
+
+#Delete a song from the list (admin only)
 def delete_item():
     if not user_login():
         return
@@ -486,15 +516,23 @@ def delete_item():
     else:
         messagebox.showwarning("Error", "Item not found.")
 
+#Save the current user's data into a csv file
 def save_user_data():
     username = username_label.cget("text") if 'username_label' in globals() else "default_user"
     with open(f"{username}_data.csv", "w", newline='') as file:
         for item in sample_data:
             file.write(f"{item['id']},{item['name']},{item['description']},{item.get('albumtitle','')},{item.get('genre','')},{item.get('releasedate','')},{item.get('image_path','')}\n")
 
+
+#Variables to track sorting order for columns
 ascending_name = True
 ascending_date = True
 ascending_album = True
+
+
+
+
+#UI Elements for clicking and hovering:
 
 def on_name_click():
     global ascending_name
@@ -514,6 +552,8 @@ def on_album_click():
     ascending_album = not ascending_album
     refresh_tree()
 
+
+# Refresh the tree  with the current sample data and update the csv file
 def refresh_tree():
     for child in tree.get_children():
         tree.delete(child)
@@ -542,51 +582,49 @@ def refresh_tree():
 
     tree.bind("<Motion>", show_tipbox)
 
+#Reset buttons by restarting the main interface
 def reset_buttons():
     root.destroy()
     main()
     display_username(current_user["username"], current_user["permission"])
     refresh_tree()
 
+#Main function to set up and start the GUI application
 def main():
+
+    #UI Elements starting
     global root, tree, search_entry, username_label
     root = ctk.CTk()
     root.title("Catalog Management System")
     root.geometry("1300x700")
     root.configure(fg_color=light_maroon, bg_color=peach) 
-
-
     search_frame = ctk.CTkFrame(root, corner_radius=15, fg_color=peach, border_width=0)
     search_frame.pack(side=TOP, padx=20, pady=20)
-
-    
     search_entry = ctk.CTkEntry(search_frame,width=195,corner_radius=15,border_width=0,fg_color=peach,bg_color=peach,text_color=text)
     search_entry.insert(0, "Search for an item...")
     search_entry.pack(side=LEFT, padx=5, pady=5)
-
     search_button = ctk.CTkButton(search_frame, text="Search 🔍", command=search_item, fg_color=maroon,bg_color=peach, hover_color=brown)
+    
+    #Clear the placeholder text when the user clicks on the search entry
     def clear_placeholder(event):
         if search_entry.get() == "Search for an item...":
             search_entry.delete(0, END)
 
     search_entry.bind("<FocusIn>", clear_placeholder)
-
     search_button = ctk.CTkButton(search_frame,text="Search",command=display_search,fg_color=maroon,bg_color=peach,hover_color=dark_maroon,corner_radius=15,border_width=0,text_color=peach)
     search_button.pack(side=LEFT, padx=5, pady=5)
 
 
+    #Set up the style and configuration for the tree view that displays songs
     style = ttk.Style()
     style.theme_use("clam")
-
     style.configure("Treeview",foreground="black",background=peach,rowheight=28,font=("Segoe UI", 12),fieldbackground=peach,borderwidth=0,highlightthickness=0,relief="flat",highlightcolor=peach,highlightbackground=peach)
     style.configure("Treeview.Heading",background=brown,foreground=peach,relief="flat",borderwidth=0)
     style.map("Treeview", background=[("selected", maroon)], foreground=[("selected", peach)])
     style.map("Treeview.Heading", background=[("pressed", maroon)], foreground=[("pressed", peach)])
     style.layout("Treeview", [("Treeview.treearea", {"sticky": "nswe"})])
-
     tree_frame = ctk.CTkFrame(root, corner_radius=15, fg_color=peach)
     tree_frame.pack(fill=BOTH, expand=True, padx=30, pady=30)
-
     tree = ttk.Treeview(tree_frame, columns=("Name","Date","Album"), show="headings")
     tree.heading("Name", text="Name", command=on_name_click)
     tree.heading("Date", text="Date", command=on_date_click)
@@ -598,32 +636,22 @@ def main():
     tree.pack(fill=BOTH, expand=True, padx=10, pady=10)
 
 
-
+    #Buttons for various operations in the main window
     ctk.CTkButton(root, text="View Details 👁️", command=view_details,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-
     ctk.CTkButton(root, text="Add Item ➕ ", command=add_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-
     if current_user["username"] == "admin" and current_user["permission"] == "admin":
-
         ctk.CTkButton(root, text="Edit Item ✏️", command=edit_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-
         ctk.CTkButton(root, text="Delete Item 🗑️", command=delete_item,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
         display_username(current_user["username"], current_user["permission"])
-
-
-
-
     ctk.CTkButton(root, text="Register 📝", command=register,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-
     ctk.CTkButton(root, text="Login 🔓", command=login,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
-
     ctk.CTkButton(root, text="Logout 🔒", command=logout,fg_color=maroon, hover_color=hover_maroon).pack(side=LEFT, padx=10, pady=10)
 
 
+
+    #Refresh the tree view and restart the loop.
     refresh_tree()
     root.mainloop()
 
 if __name__ == "__main__":
     main()
-   
-
