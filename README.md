@@ -63,7 +63,7 @@ When you are finished using the catalog, you may logout, and close the applicati
   <img src=".\Demo Screenshots\Demo8.png" />
 </div>
 
-And now that the admin has logged out, the hidden functionality is now avaiable to the user. 
+And now that the admin has logged out, the hidden functionality is now unavaiable to the user. 
 
 <div align="center">
   <img src=".\Demo Screenshots\Demo9.png" />
